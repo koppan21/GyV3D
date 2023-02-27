@@ -70,7 +70,7 @@
                 var xyz = [x,y,0];
 
                 for(var i=0;i<3;i++) {
-                    v += xyz;
+                    v = v.concat(xyz);
                 }
 
                 // Write the positions of vertices to a vertex shader

@@ -79,16 +79,16 @@
             }
 
             function drawTriangles(ev, gl, canvas) {
-            for (count = 0; count<=3; count++) {
-                var vertices = click(ev, gl, canvas);
-                console.log(vertices)
-            }
-            
-            initVertexBuffers(gl, vertices);
-            gl.drawArrays(gl.TRIANGLES, 0, 3);
-            
-            count = 0;
-            vertices = [];
+                for (count = 0; count<=3; count++) {
+                    var vertices = click(ev, gl, canvas);
+                    console.log(vertices)
+                }
+                
+                initVertexBuffers(gl, vertices);
+                gl.drawArrays(gl.TRIANGLES, 0, 3);
+                
+                count = 0;
+                vertices = [];
         }
         }
 

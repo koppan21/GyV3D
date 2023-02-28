@@ -28,7 +28,14 @@
 
 <script>
     var v = [];
+    var vertexArray = [];
     var count = 0;
+    var colors = [
+            1.0, 0.0, 0.0, // Color #1 (red)
+            0.0, 1.0, 0.0, // Color #2 (green)
+            0.0, 0.0, 1.0, // Color #3 (blue)
+        ];
+    var colorsArray = [];
 
 
     function init() {
@@ -77,15 +84,19 @@
 
             //Push new v into the array
             v.push(x,y,0);
+            vertexArray.push(x,y,0);
 
-            console.log(v);
+            // console.log(v);
             count++;
 
             //Reset
             if (count == 3) {
-                var n = initVertexBuffers(gl, v);
+                colorsArray = colors.concat(colors);
+                colors = colors.concat(colors);
+                console.log(colorsArray);
+                var n = initVertexBuffers(gl, vertexArray, colorsArray);
                 gl.clearColor(0.0, 0.0, 0.0, 1.0);
-                gl.clear(gl.COLOR_BUFFER_BIT);;
+                gl.clear(gl.COLOR_BUFFER_BIT);
                 gl.drawArrays(gl.TRIANGLES, 0, n);
                 count = 0;
                 v = [];
@@ -93,15 +104,9 @@
         }
     }
 
-    function initVertexBuffers(gl, vertices) {
+    function initVertexBuffers(gl, vertices, colors) {
         // Vertices
         var dim = 3;
-        //var vertices = [];
-        var colors = [
-            1.0, 0.0, 0.0, // Color #1 (red)
-            0.0, 1.0, 0.0, // Color #2 (green)
-            0.0, 0.0, 1.0, // Color #3 (blue)
-        ];
 
         // Create a buffer object
         var vertexBuffer = gl.createBuffer();

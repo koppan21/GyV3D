@@ -30,11 +30,6 @@
     var v = [];
     var vertexArray = [];
     var count = 0;
-    var colors = [
-            1.0, 0.0, 0.0, // Color #1 (red)
-            0.0, 1.0, 0.0, // Color #2 (green)
-            0.0, 0.0, 1.0, // Color #3 (blue)
-        ];
     var colorsArray = [];
 
 
@@ -87,13 +82,30 @@
             vertexArray.push(x,y,0);
 
             // console.log(v);
+            console.log(vertexArray);
             count++;
+
+            function centroid(a) {
+                var o_x = (a[0] + a[3] + a[6])/3;
+                var o_y = (a[1] + a[4] + a[7])/3;
+
+                if (o_x >= 0 && o_y >= 0) {
+                    colorsArray.push(1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0);
+                } else if (o_x >= 0 && o_y < 0) {
+                    colorsArray.push(0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0);
+                } else if (o_x < 0 && o_y >= 0) {
+                    colorsArray.push(0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0);
+                } else if (o_x < 0 && o_y < 0) {
+                    colorsArray.push(1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+                }
+               
+               return colorsArray
+            }
 
             //Reset
             if (count == 3) {
-                colorsArray = colors.concat(colors);
-                colors = colors.concat(colors);
-                console.log(colorsArray);
+                colorsArray = centroid(v);
+                // console.log(colorsArray);
                 var n = initVertexBuffers(gl, vertexArray, colorsArray);
                 gl.clearColor(0.0, 0.0, 0.0, 1.0);
                 gl.clear(gl.COLOR_BUFFER_BIT);

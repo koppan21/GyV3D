@@ -27,7 +27,6 @@
     
     <script>
         var v = [];
-        var count = 0;
 
         function init() {
             // Get canvas object from the DOM
@@ -36,7 +35,7 @@
             // Get the rendering context for WebGL
             var gl = canvas.getContext("webgl");
 
-            canvas.addEventListener('click', function(ev) {}, false);
+            canvas.addEventListener("click", function(ev) {}, false);
 
             // Init shaders
             var vs = document.getElementById('shaderVs').innerHTML;
@@ -73,15 +72,26 @@
                 var xyz = [x,y,0];
 
 
-                // Write the positions of vertices to a vertex shader
-                vertices.push(xyz);
+                // Write the positions in v
+                v.push(xyz);
 
-                return vertices
+                return v
             }
+
+            drawTriangles(ev, gl, canvas);
         }
 
-        function drawScene() {
-            pass
+        function drawTriangles(ev, gl, canvas) {
+            for (count = 0; count<=3; count++) {
+                var vertices = click(ev, gl, canvas);
+                console.log(vertices)
+            }
+            
+            initVertexBuffers(gl, vertices);
+            gl.drawArrays(gl.TRIANGLES, 0, 3);
+            
+            count = 0;
+            vertices = [];
         }
 
         function initVertexBuffers(gl, vertices) {
@@ -117,7 +127,7 @@
             gl.enableVertexAttribArray(a_Color);
 
             // Return number of vertices
-            return vertices.length / dim;
+            // return vertices.length / dim;
         }
 
         function initShaders(gl, vs_source, fs_source) {

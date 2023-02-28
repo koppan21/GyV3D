@@ -78,10 +78,7 @@
                 return v
             }
 
-            drawTriangles(ev, gl, canvas);
-        }
-
-        function drawTriangles(ev, gl, canvas) {
+            function drawTriangles(ev, gl, canvas) {
             for (count = 0; count<=3; count++) {
                 var vertices = click(ev, gl, canvas);
                 console.log(vertices)
@@ -92,6 +89,7 @@
             
             count = 0;
             vertices = [];
+        }
         }
 
         function initVertexBuffers(gl, vertices) {

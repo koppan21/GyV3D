@@ -59,12 +59,6 @@
 
         function click(ev, gl, canvas) {
 
-            //Reset
-            if (count == 3) {
-                count = 0;
-                v = [];
-            }
-
             // Coordinates of canvas origin
             var rect = ev.target.getBoundingClientRect();
 
@@ -84,16 +78,18 @@
             //Push new v into the array
             v.push(xyz);
 
-
-            // Write the positions of vertices to a vertex shader
-            //var n = initVertexBuffers(gl, v);
-            count++;
             console.log(v);
+            count++;
 
-            var n = initVertexBuffers(gl, v);
-            gl.clearColor(0.0, 0.0, 0.0, 1.0);
-            gl.clear(gl.COLOR_BUFFER_BIT);;
-            gl.drawArrays(gl.TRIANGLES, 0, n);
+            //Reset
+            if (count == 3) {
+                var n = initVertexBuffers(gl, v);
+                gl.clearColor(0.0, 0.0, 0.0, 1.0);
+                gl.clear(gl.COLOR_BUFFER_BIT);;
+                gl.drawArrays(gl.TRIANGLES, 0, n);
+                count = 0;
+                v = [];
+            }
         }
     }
 

@@ -66,14 +66,10 @@
 
             var translated = glMatrix.mat4.fromTranslation(glMatrix.mat4.create(), [x, y, 0.0]);
             var scaled = glMatrix.mat4.fromScaling(glMatrix.mat4.create(), [scale, scale, 0.0]);
-            var rotateX = glMatrix.mat4.fromXRotation(glMatrix.mat4.create(), countX);
-			var rotateY = glMatrix.mat4.fromYRotation(glMatrix.mat4.create(), countY);
-			var rotateZ = glMatrix.mat4.fromZRotation(glMatrix.mat4.create(), countZ);
+			var rotated = glMatrix.mat4.fromZRotation(glMatrix.mat4.create(), countZ);
             var translated_scaled = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated, scaled);
-			var translated_scaled_X = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated_scaled, rotateX);
-			var translated_scaled_XY = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated_scaled_X, rotateY);
-			var translated_scaled_XYZ = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated_scaled_XY, rotateZ);
-			var matrix = translated_scaled_XYZ;
+			var translated_scaled_rotated = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated_scaled, rotated);
+			var matrix = translated_scaled_rotated;
 
             // Set uniform value (u_Matrix) in vertex shader
             var mvMatrixUniform = gl.getUniformLocation(gl.program, "u_Matrix");

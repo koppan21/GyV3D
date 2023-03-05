@@ -23,7 +23,10 @@
     <script>
         
         var gl;
-        var count = 0.0;
+        var countX = 0.0;
+        var countY = 0.0;
+        var countZ = 0.0;
+        var count = 1.0;
 
         function init() {
             // Get canvas object from the DOM
@@ -56,8 +59,20 @@
             gl.clear(gl.COLOR_BUFFER_BIT);
 
             // Calculate position
-            var position = Math.sin(count);
-            var matrix = glMatrix.mat4.fromTranslation(glMatrix.mat4.create(), [position, 0.0, 0.0]);
+            var x = Math.sin(countX);
+            var y = Math.sin(countY);
+            var scale = Math.abs(Math.sin(count));
+
+            var translated = glMatrix.mat4.fromTranslation(glMatrix.mat4.create(), [x, y, 0.0]);
+            var scaled = glMatrix.mat4.fromScaling(glMatrix.mat4.create(), [scale, scale, 0.0]);
+            var rotateX = glMatrix.mat4.fromXRotation(glMatrix.mat4.create(), countX);
+			var rotateY = glMatrix.mat4.fromYRotation(glMatrix.mat4.create(), countY);
+			var rotateZ = glMatrix.mat4.fromZRotation(glMatrix.mat4.create(), countZ);
+            var translated_scaled = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated, scaled);
+			var translated_scaled_X = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated_scaled, rotateX);
+			var translated_scaled_XY = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated_scaled_X, rotateY);
+			var translated_scaled_XYZ = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated_scaled_XY, rotateZ);
+			var matrix = translated_scaled_XYZ;
 
             // Set uniform value (u_Matrix) in vertex shader
             var mvMatrixUniform = gl.getUniformLocation(gl.program, "u_Matrix");
@@ -72,31 +87,46 @@
                 switch (ev.keyCode) {
                     case 37: // Left
                         gl.uniformMatrix4fv(mvMatrixUniform, false, matrix);
-                        count += -0.01;
+                        countX += -0.01;
                         requestAnimationFrame(drawScene);
                         break;
                     case 39: // Right
                         gl.uniformMatrix4fv(mvMatrixUniform, false, matrix);    
-                        count += 0.01;
+                        countX += 0.01;
                         requestAnimationFrame(drawScene);
                         break;
                     case 38: // Up
-                    // ...
+                        gl.uniformMatrix4fv(mvMatrixUniform, false, matrix);
+                        countY += 0.01;
+                        requestAnimationFrame(drawScene);
+                        break;
                     break;
                     case 40: // Down
-                    // ...
+                        gl.uniformMatrix4fv(mvMatrixUniform, false, matrix);
+                        countY += -0.01;
+                        requestAnimationFrame(drawScene);
+                        break;
                     break;
                     case 33: // PageUp
-                    // ...
+                        gl.uniformMatrix4fv(mvMatrixUniform, false, matrix);
+                        count += 0.01;
+                        requestAnimationFrame(drawScene);
+                        break;
                     break;
                     case 34: // PageDown
-                    // ...
+                        gl.uniformMatrix4fv(mvMatrixUniform, false, matrix);
+                        count += -0.01;
+                        requestAnimationFrame(drawScene);
                     break;
                     case 36: // Home
-                    // ...
+                        gl.uniformMatrix4fv(mvMatrixUniform, false, matrix);
+                        countZ += 0.01;
+                        requestAnimationFrame(drawScene);
                     break
                     case 35: // End
-                    // ...
+                        gl.uniformMatrix4fv(mvMatrixUniform, false, matrix);
+                        countZ += -0.01;
+                        requestAnimationFrame(drawScene);
                     break;
                     case 187: // +
                     // ...

@@ -59,9 +59,10 @@
             gl.clear(gl.COLOR_BUFFER_BIT);
 
             // Calculate position
-            var x = Math.sin(countX);
-            var y = Math.sin(countY);
-            var scale = Math.abs(Math.sin(count));
+            var x = countX;
+            var y = countY;
+            var z = countZ;
+            var scale = Math.abs(count);
 
             var translated = glMatrix.mat4.fromTranslation(glMatrix.mat4.create(), [x, y, 0.0]);
             var scaled = glMatrix.mat4.fromScaling(glMatrix.mat4.create(), [scale, scale, 0.0]);

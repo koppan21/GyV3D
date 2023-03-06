@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebGL proyections</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/3.4.2/gl-matrix-min.js"></script>
+
+    <script id="shaderVs" type="x-shader/x-vertex">
+        attribute vec4 a_Position;
+        uniform mat4 u_Matrix;
+        void main() {
+            gl_Position = u_Matrix * a_Position;
+        }
+    </script>
+
+    <script id="shaderFs" type="x-shader/x-fragment">
+        void main() {
+            gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+        }
+    </script>
+</head>
+</html>

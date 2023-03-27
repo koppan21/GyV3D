@@ -37,6 +37,8 @@
         
         var gl;
         var count = 0.0;
+        var countY = 0.0;
+        var countZ = 0.0;
         var z = 3;
 
         function init() {
@@ -75,6 +77,10 @@
             // Clear
             gl.clear(gl.COLOR_BUFFER_BIT);
 
+            var translated = glMatrix.mat4.fromTranslation(glMatrix.mat4.create(), [0.0, countY, countZ]);
+            var rotated = glMatrix.mat4.fromYRotation(glMatrix.mat4.create(), countY*speed);
+            var translated_scaled_rotated = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated, rotated);
+
             var rotationChecked = document.querySelector('input[name="rotation"]:checked');
             var primitiveValue = document.querySelector('input[name="primitive"]:checked').value;
             var projectionValue = document.querySelector('input[name="projection"]:checked').value;
@@ -109,8 +115,18 @@
             }
 
             // Call drawScene again in the next browser repaint
-            count += 0.01;
-            requestAnimationFrame(drawScene);
+            document.onkeydown = function (ev) {
+                var step = new Number(document.getElementById("step").value);
+                switch (ev.keyCode) {
+                    case 38: // Up
+                        countY += step;
+                        break;
+                    case 40: // Down
+                        countY += -step;
+                        break;
+                }
+                requestAnimationFrame(drawScene);
+            };
         }
 
         function initVertexShader(gl) {
@@ -300,6 +316,8 @@
 
 <body onload="init()">
     <canvas id="myCanvas" width="640" height="480"></canvas>
+    <br>
+    Step: <input type="text" value="0.01" id="step">
     <div>
         <b>Rotation</b>
         <input type="checkbox" name="rotation" checked>

@@ -85,6 +85,9 @@
             initProjection(gl, canvas);
 
             if (projectionValue == "perspective") {
+                document.addEventListener('wheel', function(ev) {
+                    z = ev.wheelDelta > 0 ? z - 0.01 : z + 0.01;  // 1 era un valor demasiado alto y el arbol desaparecia
+                });
                 initProjection(gl, canvas, 0)
             }
             else if (projectionValue == "orthographic") {
@@ -196,10 +199,6 @@
 		}
 
         function initProjection(gl, canvas, n) {
-            document.addEventListener('wheel', function(ev) {
-                z = ev.wheelDelta > 0 ? z - 0.01 : z + 0.01;  // 1 era un valor demasiado alto y el arbol desaparecia
-            });
-
             var pMatrixUniform = gl.getUniformLocation(gl.program, "u_pMatrix");
             var vMatrixUniform = gl.getUniformLocation(gl.program, "u_vMatrix");
             var ratio = canvas.width / canvas.height;

@@ -190,9 +190,9 @@
             gl.enableVertexAttribArray(vertexPositionAttribute);
             gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 4 * (3 + 2), 0);
 
-            var vertexColorAttribute = gl.getAttribLocation(gl.program, "a_Color");
+            var vertexColorAttribute = gl.getAttribLocation(gl.program, "a_TexCoord");
             gl.enableVertexAttribArray(vertexColorAttribute);
-            gl.vertexAttribPointer(vertexColorAttribute, 3, gl.FLOAT, false, 4 * (3 + 2), 4 * 3);
+            gl.vertexAttribPointer(vertexColorAttribute, 2, gl.FLOAT, false, 4 * (3 + 2), 4 * 3);
 
             // Write indexes in gl.ELEMENT_ARRAY_BUFFER
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.createBuffer());

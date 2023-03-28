@@ -23,10 +23,10 @@
 
     <script id="shaderFs" type="x-shader/x-fragment">
         precision mediump float;
+        uniform bool lights;
         uniform sampler2D u_Sampler0;
         uniform sampler2D u_Sampler1;
         varying vec2 v_TexCoord;
-        uniform bool lights;
         void main(void) {
             vec4 color0 = texture2D(u_Sampler0, v_TexCoord);
             vec4 color1 = texture2D(u_Sampler1, v_TexCoord);
@@ -43,11 +43,15 @@
         var gl;
         var countX = 0.0;
         var countY = 0.0;
-        var z = 3;
+        var countZ = 3;
 
         function init() {
             // Get canvas object from the DOM
             var canvas = document.getElementById("myCanvas");
+            
+            document.addEventListener('wheel', function(ev) {
+                    countZ = ev.wheelDelta > 0 ? countZ - 0.5 : countZ + 0.5;
+                });
 
             // Init WebGL context
             gl = canvas.getContext("webgl");
@@ -85,11 +89,13 @@
             var primitiveValue = document.querySelector('input[name="primitive"]:checked').value;
             var projectionValue = document.querySelector('input[name="projection"]:checked').value;
             var speed = document.getElementById("speed").value;
+            var christmas = document.querySelector('input[name="christmas"]:checked').value;
 
             var translated = glMatrix.mat4.fromXRotation(glMatrix.mat4.create(), countX);
             var rotated = glMatrix.mat4.fromYRotation(glMatrix.mat4.create(), countY*speed);
             var matrix = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated, rotated);
             var mvMatrixUniform = gl.getUniformLocation(gl.program, "u_mvMatrix");
+            var l = gl.getUniformLocation(gl.program, "lights");
 
             // Rotate
             if (rotationChecked) {
@@ -101,26 +107,20 @@
             initProjection(gl, canvas);
 
             if (projectionValue == "perspective") {
-                document.addEventListener('wheel', function(ev) {
-                    z = ev.wheelDelta > 0 ? z - 0.01 : z + 0.01;
-                });
+                z = countZ;
                 gl.uniformMatrix4fv(mvMatrixUniform, false, matrix);
                 initProjection(gl, canvas, 0)
-            }
-            else if (projectionValue == "orthographic") {
+            } else if (projectionValue == "orthographic") {
                 gl.uniformMatrix4fv(mvMatrixUniform, false, rotated);
                 initProjection(gl, canvas, 1)
             }
 
             if (primitiveValue == "lines"){
                 gl.drawElements(gl.LINE_STRIP, 90, gl.UNSIGNED_SHORT, 0);
-            }
-            else if (primitiveValue == "triangles"){
+            } else if (primitiveValue == "triangles"){
                 gl.drawElements(gl.TRIANGLES, 90, gl.UNSIGNED_SHORT, 0);
             }
 
-            var l = gl.getUniformLocation(gl.program, "lights");
-            var christmas = document.querySelector('input[name="christmas"]:checked').value;
             if (christmas == "no") {
                 gl.uniform1i(l, false);
             } else if (christmas == "yes") {

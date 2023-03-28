@@ -26,10 +26,15 @@
         uniform sampler2D u_Sampler0;
         uniform sampler2D u_Sampler1;
         varying vec2 v_TexCoord;
+        uniform bool lights;
         void main(void) {
             vec4 color0 = texture2D(u_Sampler0, v_TexCoord);
             vec4 color1 = texture2D(u_Sampler1, v_TexCoord);
-            gl_FragColor = color0 * color1;
+            if (lights) {
+                gl_FragColor = color0 * color1;
+            } else {
+                gl_FragColor = color0;
+            }
         }
     </script>
 
@@ -112,6 +117,14 @@
             }
             else if (primitiveValue == "triangles"){
                 gl.drawElements(gl.TRIANGLES, 90, gl.UNSIGNED_SHORT, 0);
+            }
+
+            var l = gl.getUniformLocation(gl.program, "lights");
+            var christmas = document.querySelector('input[name="christmas"]:checked').value;
+            if (christmas == "no") {
+                gl.uniform1i(l, false);
+            } else if (christmas == "yes") {
+                gl.uniform1i(l, true);
             }
 
             document.onkeydown = function (ev) {
@@ -274,7 +287,6 @@
             image0.src = 'tree.jpg';
             var image1 = new Image();
             image1.src = 'light.jpg';
-            var lights = document.querySelector('input[name="christmas"]:checked').value;
 
             image0.onload = function () {
                 loadTexture(gl, "u_Sampler0", image0, 0, true);

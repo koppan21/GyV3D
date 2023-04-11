@@ -2,7 +2,7 @@
 <html>
 
 <head>
-<title>Three.js: Earth</title>
+<title>Three.js: Torus Knot</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.148.0/three.min.js"></script>
 
@@ -15,11 +15,10 @@
       var camera = new THREE.PerspectiveCamera(90, sceneWidth / sceneHeight, 0.01, 100);
       camera.position.z = 5;
 
-      var geometry = new THREE.SphereGeometry(2, 32, 16);
-      var texture = new THREE.TextureLoader().load("earth.png");
-      var material = new THREE.MeshBasicMaterial({map : texture});
-      var sphere = new THREE.Mesh(geometry, material);
-      scene.add(sphere);
+      var geometry = new THREE.TorusKnotGeometry(1, 0.4, 64, 8);
+      var material = new THREE.MeshNormalMaterial();
+      var mesh = new THREE.Mesh(geometry, material);
+      scene.add(mesh);
 
       var renderer = new THREE.WebGLRenderer({
          antialias : true
@@ -28,16 +27,17 @@
       renderer.setSize(sceneWidth, sceneHeight);
       document.body.appendChild(renderer.domElement);
 
-      animate(sphere, renderer, scene, camera);
+      animate(mesh, renderer, scene, camera);
    }
 
-   function animate(sphere, renderer, scene, camera) {
-      sphere.rotation.y += 0.02;
+   function animate(mesh, renderer, scene, camera) {
+      mesh.rotation.x += 0.01;
+      mesh.rotation.y += 0.01;
 
       renderer.render(scene, camera);
 
       requestAnimationFrame(function() {
-         animate(sphere, renderer, scene, camera);
+         animate(mesh, renderer, scene, camera);
       });
    }
 </script>

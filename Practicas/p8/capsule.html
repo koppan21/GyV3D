@@ -2,7 +2,7 @@
 <html>
 
 <head>
-<title>Three.js: Earth</title>
+<title>Three.js: Capsule</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.148.0/three.min.js"></script>
 
@@ -15,11 +15,10 @@
       var camera = new THREE.PerspectiveCamera(90, sceneWidth / sceneHeight, 0.01, 100);
       camera.position.z = 5;
 
-      var geometry = new THREE.SphereGeometry(2, 32, 16);
-      var texture = new THREE.TextureLoader().load("earth.png");
-      var material = new THREE.MeshBasicMaterial({map : texture});
-      var sphere = new THREE.Mesh(geometry, material);
-      scene.add(sphere);
+      var geometry = new THREE.CapsuleGeometry(1, 1, 4, 8);
+      var material = new THREE.MeshNormalMaterial();
+      var capsule = new THREE.Mesh(geometry, material);
+      scene.add(capsule);
 
       var renderer = new THREE.WebGLRenderer({
          antialias : true
@@ -28,16 +27,17 @@
       renderer.setSize(sceneWidth, sceneHeight);
       document.body.appendChild(renderer.domElement);
 
-      animate(sphere, renderer, scene, camera);
+      animate(capsule, renderer, scene, camera);
    }
 
-   function animate(sphere, renderer, scene, camera) {
-      sphere.rotation.y += 0.02;
+   function animate(capsule, renderer, scene, camera) {
+      capsule.rotation.x += 0.01;
+      capsule.rotation.y += 0.01;
 
       renderer.render(scene, camera);
 
       requestAnimationFrame(function() {
-         animate(sphere, renderer, scene, camera);
+         animate(capsule, renderer, scene, camera);
       });
    }
 </script>

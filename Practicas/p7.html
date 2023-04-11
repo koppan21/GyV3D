@@ -123,7 +123,7 @@
             initProjection(gl, canvas);
 
             if (projectionValue == "perspective") {
-                z = countZ;
+                z2 = countZ;
                 gl.uniformMatrix4fv(mvMatrixUniform, false, matrix);
                 initProjection(gl, canvas, 0)
             } else if (projectionValue == "orthographic") {
@@ -321,7 +321,7 @@
             
             if (n == 0){
                 var pMatrix = glMatrix.mat4.perspective(glMatrix.mat4.create(), toRadian(60), ratio, 0.1, 100);
-                var vMatrix = glMatrix.mat4.lookAt(glMatrix.mat4.create(), [0, 0, z], [0, 0, 0], [0, 1, 0]);
+                var vMatrix = glMatrix.mat4.lookAt(glMatrix.mat4.create(), [0, 0, z2], [0, 0, 0], [0, 1, 0]);
                 gl.uniformMatrix4fv(pMatrixUniform, false, pMatrix);
                 gl.uniformMatrix4fv(vMatrixUniform, false, vMatrix);
             }

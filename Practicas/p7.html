@@ -9,8 +9,8 @@
     <script id="shaderVs" type="x-shader/x-vertex">
         attribute vec4 a_Position;
         attribute vec2 a_TexCoord;
-        varying vec2 v_TexCoord;
         attribute vec3 a_Normal;
+        varying vec2 v_TexCoord;
 
         uniform vec3 u_LightColor;
         uniform vec3 u_LightDirection;
@@ -28,8 +28,8 @@
             vec3 normal = normalize(a_Normal);
             float nDotL = max(dot(u_LightDirection, normal), 0.0);
 
-            vec3 diffuse = u_LightColor * a_TexCoord * nDotL;
-            vec3 ambient = u_AmbientLight * a_TexCoord;
+            vec3 diffuse = u_LightColor * a_TexCoord.rgb * nDotL;
+            vec3 ambient = u_AmbientLight * a_TexCoord.rgb;
 
             v_TexCoord = vec2(diffuse + ambient, 1.0);
         }

@@ -9,9 +9,8 @@
     <script id="shaderVs" type="x-shader/x-vertex">
         attribute vec4 a_Position;
         attribute vec2 a_TexCoord;
-        varying vec2 v_TexCoord;
-        attribute vec3 a_Color;
         attribute vec3 a_Normal;
+        varying vec2 v_TexCoord;
 
         uniform vec3 u_LightColor;
         uniform vec3 u_LightDirection;
@@ -25,15 +24,14 @@
         
         void main() {
             gl_Position = u_pMatrix * u_vMatrix * u_mvMatrix * a_Position;
-            
-            v_TexCoord = a_TexCoord;
 
             vec3 normal = normalize(a_Normal);
             float nDotL = max(dot(u_LightDirection, normal), 0.0);
 
-            vec3 diffuse = u_LightColor * a_Color.rgb * nDotL;
-            vec3 ambient = u_AmbientLight * a_Color.rgb;
-            v_Color = vec4(diffuse + ambient, 1.0);
+            vec3 diffuse = u_LightColor * a_TexCoord.rgb * nDotL;
+            vec3 ambient = u_AmbientLight * a_TexCoord.rgb;
+
+            v_TexCoord = vec2(diffuse + ambient, 1.0);
         }
     </script>
 
@@ -123,7 +121,7 @@
             initProjection(gl, canvas);
 
             if (projectionValue == "perspective") {
-                z = countZ;
+                z2 = countZ;
                 gl.uniformMatrix4fv(mvMatrixUniform, false, matrix);
                 initProjection(gl, canvas, 0)
             } else if (projectionValue == "orthographic") {
@@ -321,7 +319,7 @@
             
             if (n == 0){
                 var pMatrix = glMatrix.mat4.perspective(glMatrix.mat4.create(), toRadian(60), ratio, 0.1, 100);
-                var vMatrix = glMatrix.mat4.lookAt(glMatrix.mat4.create(), [0, 0, z], [0, 0, 0], [0, 1, 0]);
+                var vMatrix = glMatrix.mat4.lookAt(glMatrix.mat4.create(), [0, 0, z2], [0, 0, 0], [0, 1, 0]);
                 gl.uniformMatrix4fv(pMatrixUniform, false, pMatrix);
                 gl.uniformMatrix4fv(vMatrixUniform, false, vMatrix);
             }

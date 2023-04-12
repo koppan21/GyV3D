@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Three.js: Capsule</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.148.0/three.min.js"></script>
+
+<script>
+   function init() {
+      var scene = new THREE.Scene();
+      var sceneWidth = window.innerWidth;
+      var sceneHeight = window.innerHeight;
+
+      var camera = new THREE.PerspectiveCamera(90, sceneWidth / sceneHeight, 0.01, 100);
+      camera.position.z = 5;
+
+      var geometry = new THREE.CapsuleGeometry(1, 1, 4, 8);
+      var material = new THREE.MeshNormalMaterial();
+      var capsule = new THREE.Mesh(geometry, material);
+      scene.add(capsule);
+
+      var renderer = new THREE.WebGLRenderer({
+         antialias : true
+      });
+
+      renderer.setSize(sceneWidth, sceneHeight);
+      document.body.appendChild(renderer.domElement);
+
+      animate(capsule, renderer, scene, camera);
+   }
+
+   function animate(capsule, renderer, scene, camera) {
+      capsule.rotation.x += 0.01;
+      capsule.rotation.y += 0.01;
+
+      renderer.render(scene, camera);
+
+      requestAnimationFrame(function() {
+         animate(capsule, renderer, scene, camera);
+      });
+   }
+</script>
+</head>
+
+<body onload="init()">
+</body>
+
+</html>

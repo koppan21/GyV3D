@@ -288,15 +288,15 @@
                 0, -1, 0, 0, -1, 0, 0, -1, 0, // down
             ];
 
-            var r = 4;
+            var r = 0.2;
             var m = 30;
 
-            for (var a=0; a <= m; a++) {
+            for (var a=10; a <= m; a++) {
                 var theta = a * Math.PI / m;
                 var sinT = Math.sin(theta);
                 var cosT = Math.cos(theta);
 
-                for (var b=0; b <= m; b++) {
+                for (var b=10; b <= m; b++) {
                     var phi = 2 * b * Math.PI / m;
                     var sinP = Math.sin(phi);
                     var cosP = Math.cos(phi);
@@ -306,11 +306,11 @@
                     var zS = sinP * sinT;
                     
                     vertexesAndTextures.push(xS * r);
-                    vertexesAndTextures.push(0.0, 0.1);
                     vertexesAndTextures.push(yS * r);
-                    vertexesAndTextures.push(0.0, 0.1);
                     vertexesAndTextures.push(zS * r);
-                    vertexesAndTextures.push(0.0, 0.1);
+                    
+                    vertexesAndTextures.push(0.0);
+                    vertexesAndTextures.push(0.0);
 
                     normals.push(xS/r);
                     normals.push(yS/r);

@@ -290,6 +290,7 @@
 
             var r = 0.2;
             var m = 30;
+            var p = 0.8 * 0.8;
 
             for (var a=10; a <= m; a++) {
                 var theta = a * Math.PI / m;
@@ -305,16 +306,16 @@
                     var yS = cosT;
                     var zS = sinP * sinT;
                     
-                    vertexesAndTextures.push(xS * r);
-                    vertexesAndTextures.push(yS * r);
-                    vertexesAndTextures.push(zS * r);
+                    vertexesAndTextures.push(p*xS * r);
+                    vertexesAndTextures.push(p*yS * r);
+                    vertexesAndTextures.push(p*zS * r);
                     
                     vertexesAndTextures.push(0.0);
                     vertexesAndTextures.push(0.0);
 
-                    normals.push(xS/r);
-                    normals.push(yS/r);
-                    normals.push(zS/r);
+                    normals.push(p*xS/r);
+                    normals.push(p*yS/r);
+                    normals.push(p*zS/r);
 
                     var first = (a * (m + 1)) + b;
                     var second = first + m + 1;

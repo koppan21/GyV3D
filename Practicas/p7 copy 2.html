@@ -113,6 +113,7 @@
             var matrix = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated, rotated);
             var mvMatrixUniform = gl.getUniformLocation(gl.program, "u_mvMatrix");
             var l = gl.getUniformLocation(gl.program, "lights");
+            var n = initVertexShader(gl);
 
             // Rotate
             if (rotationChecked) {
@@ -133,12 +134,10 @@
             }
 
             if (primitiveValue == "lines"){
-                gl.drawElements(gl.LINE_STRIP, 90, gl.UNSIGNED_SHORT, 0);
+                gl.drawElements(gl.LINE_STRIP, n, gl.UNSIGNED_SHORT, 0);
             } else if (primitiveValue == "triangles"){
-                gl.drawElements(gl.TRIANGLES, 90, gl.UNSIGNED_SHORT, 0);
+                gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_SHORT, 0);
             }
-
-            gl.drawElements(gl.TRIANGLES, 120, gl.UNSIGNED_SHORT, 0);
 
             if (christmas == "no") {
                 gl.uniform1i(l, false);
@@ -289,32 +288,43 @@
                 0, -1, 0, 0, -1, 0, 0, -1, 0, // down
             ];
 
-            var i, aI, sinI, cosI;
-            var j, aJ, sinJ, cosJ;
-            var p1, p2;
+            var r = 4;
+            var m = 30;
 
-            for (j = 0; j <= 60; j++) {
-                aJ = j * Math.PI / 60;
-                sinJ = Math.sin(aJ);
-                cosJ = Math.cos(aJ);
+            for (var a=0; a <= m; a++) {
+                var theta = a * Math.PI / m;
+                var sinT = Math.sin(theta);
+                var cosT = Math.cos(theta);
 
-                for (i = 0; i <= 60; i++) {
-                    aI = i * Math.PI / 60;
-                    sinI = Math.sin(aI);
-                    cosI = Math.cos(aI);
+                for (var b=0; b <= m; b++) {
+                    var phi = 2 * b * Math.PI / m;
+                    var sinP = Math.sin(phi);
+                    var cosP = Math.cos(phi);
 
-                    vertexesAndTextures.push(cosI * sinJ); // x
-                    vertexesAndTextures.push(0.0, 0.1);    // color
-
-                    vertexesAndTextures.push(cosJ);        // y
-                    vertexesAndTextures.push(0.0, 0.1);    // color
+                    var xS = cosP * sinT;
+                    var yS = cosT;
+                    var zS = sinP * sinT;
                     
-                    vertexesAndTextures.push(sinI * sinJ); // z
-                    vertexesAndTextures.push(0.0, 0.1);    // color
+                    vertexesAndTextures.push(xS * r);
+                    vertexesAndTextures.push(0.0, 0.1);
+                    vertexesAndTextures.push(yS * r);
+                    vertexesAndTextures.push(0.0, 0.1);
+                    vertexesAndTextures.push(zS * r);
+                    vertexesAndTextures.push(0.0, 0.1);
 
-                    normals.push(cosI * sinJ);
-                    normals.push(cosJ);
-                    normals.push(sinI * sinJ);
+                    normals.push(xS/r);
+                    normals.push(yS/r);
+                    normals.push(zS/r);
+
+                    var first = (a * (m + 1)) + b;
+                    var second = first + m + 1;
+
+                    indexes.push(first);
+                    indexes.push(second);
+                    indexes.push(first + 1);
+                    indexes.push(second);
+                    indexes.push(second + 1);
+                    indexes.push(first + 1);
                 }
             }
 
@@ -340,6 +350,8 @@
             // Write indexes in gl.ELEMENT_ARRAY_BUFFER
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.createBuffer());
             gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexes), gl.STATIC_DRAW);
+
+            return indexes.length;
         }
 		
 		function toRadian(g){

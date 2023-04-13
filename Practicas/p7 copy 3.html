@@ -61,10 +61,10 @@
         var countX = 0.0;
         var countY = 0.0;
         var countZ = 3;
-        const LATITUDE_BANDS = 90;
-        const LONGITUDE_BANDS = 90;
+        const LATITUDE_BANDS = 50;
+        const LONGITUDE_BANDS = 50;
         const RADIUS = 0.2;
-        const POSITION = 4;
+        const POSITION = 0.8;
 
         function init() {
             // Get canvas object from the DOM
@@ -112,10 +112,19 @@
             var speed = document.getElementById("speed").value;
             var christmas = document.querySelector('input[name="christmas"]:checked').value;
 
+            var translatedSphere = glMatrix.mat4.fromTranslation(glMatrix.mat4.create(), [POSITION, POSITION, 0.0]);
+
             var translated = glMatrix.mat4.fromXRotation(glMatrix.mat4.create(), countX);
             var rotated = glMatrix.mat4.fromYRotation(glMatrix.mat4.create(), countY*speed);
             var matrix = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated, rotated);
             var mvMatrixUniform = gl.getUniformLocation(gl.program, "u_mvMatrix");
+            
+            // Get the normal direction using the model Matrix
+            var normalMatrixInvert = glMatrix.mat4.invert(glMatrix.mat4.create(), matrix);
+            var normalMatrixInvertTranspose = glMatrix.mat4.transpose(glMatrix.mat4.create(), normalMatrixInvert);
+            var normalUniformMatrix = gl.getUniformLocation(gl.program, "u_nMatrix");
+            gl.uniformMatrix4fv(normalUniformMatrix, false, normalMatrixInvertTranspose);
+            // Conditions
             var l = gl.getUniformLocation(gl.program, "lights");
             var n = initVertexShader(gl);
 
@@ -139,9 +148,11 @@
 
             if (primitiveValue == "lines"){
                 gl.drawElements(gl.LINE_STRIP, 90, gl.UNSIGNED_SHORT, 0);
+                gl.uniformMatrix4fv(mvMatrixUniform, false, translatedSphere);
                 gl.drawElements(gl.LINE_STRIP, LATITUDE_BANDS * LONGITUDE_BANDS * 3 * 2, gl.UNSIGNED_SHORT, 90*2);
             } else if (primitiveValue == "triangles"){
                 gl.drawElements(gl.TRIANGLES, 90, gl.UNSIGNED_SHORT, 0);
+                gl.uniformMatrix4fv(mvMatrixUniform, false, translatedSphere);
                 gl.drawElements(gl.LINE_STRIP, LATITUDE_BANDS * LONGITUDE_BANDS * 3 * 2, gl.UNSIGNED_SHORT, 90*2);
             }
 
@@ -309,23 +320,23 @@
                     var yS = cosTheta;
                     var zS = cosPhi * sinTheta;
 
-                    vertexesAndTextures.push(RADIUS * (xS + POSITION));
-                    vertexesAndTextures.push(RADIUS * (yS + POSITION));
+                    vertexesAndTextures.push(RADIUS * xS);
+                    vertexesAndTextures.push(RADIUS * yS);
                     vertexesAndTextures.push(RADIUS * zS);
 
                     vertexesAndTextures.push(0.0);
                     vertexesAndTextures.push(0.0);
 
-                    normals.push((POSITION+xS)/RADIUS);
-                    normals.push((POSITION+yS)/RADIUS);
+                    normals.push(xS/RADIUS);
+                    normals.push(yS/RADIUS);
                     normals.push(zS/RADIUS);
                 }
             }
 
             for (var i = 0; i < LATITUDE_BANDS; i++) {
                 for (var j = 0; j < LONGITUDE_BANDS; j++) {
-                    var first = i * (LONGITUDE_BANDS + 1) + j +90;
-                    var second = first + LONGITUDE_BANDS + 1+90;
+                    var first = i * (LONGITUDE_BANDS + 1) + j + 90;
+                    var second = first + LONGITUDE_BANDS + 1 + 90;
 
                     indexes.push(first);
                     indexes.push(second);

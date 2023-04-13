@@ -44,11 +44,11 @@
             float nDotL = max(dot(u_LightDirection, normalize(v_Normal.xyz)), 0.0);
 
             if (lights) {
-                vec3 diffuse = 0.5 * u_LightColor * color0.rgb * color1.rgb * nDotL;
+                vec3 diffuse = u_LightColor * color0.rgb * color1.rgb * nDotL;
                 vec3 ambient = u_AmbientLight * color0.rgb * color1.rgb;
                 gl_FragColor = vec4(diffuse + ambient, color0.a * color1.a);
             } else {
-                vec3 diffuse = 0.5 * u_LightColor * color0.rgb * nDotL;
+                vec3 diffuse = u_LightColor * color0.rgb * nDotL;
                 vec3 ambient = u_AmbientLight * color0.rgb;
                 gl_FragColor = vec4(diffuse + ambient, color0.a);
             }
@@ -344,7 +344,7 @@
 
             // console.log(indexes.length);
 
-            // Write a_Position and a_Color using gl.ARRAY_BUFFER
+            // Write a_Position, a_TexCoord and a_Normal using gl.ARRAY_BUFFER
             gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexesAndTextures), gl.STATIC_DRAW);
 

@@ -61,6 +61,10 @@
         var countX = 0.0;
         var countY = 0.0;
         var countZ = 3;
+        const LATITUDE_BANDS = 90;
+        const LONGITUDE_BANDS = 90;
+        const RADIUS = 0.2;
+        const POSITION = 4;
 
         function init() {
             // Get canvas object from the DOM
@@ -113,6 +117,7 @@
             var matrix = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated, rotated);
             var mvMatrixUniform = gl.getUniformLocation(gl.program, "u_mvMatrix");
             var l = gl.getUniformLocation(gl.program, "lights");
+            var n = initVertexShader(gl);
 
             // Rotate
             if (rotationChecked) {
@@ -134,8 +139,10 @@
 
             if (primitiveValue == "lines"){
                 gl.drawElements(gl.LINE_STRIP, 90, gl.UNSIGNED_SHORT, 0);
+                gl.drawElements(gl.LINE_STRIP, LATITUDE_BANDS * LONGITUDE_BANDS * 3 * 2, gl.UNSIGNED_SHORT, 90*2);
             } else if (primitiveValue == "triangles"){
                 gl.drawElements(gl.TRIANGLES, 90, gl.UNSIGNED_SHORT, 0);
+                gl.drawElements(gl.LINE_STRIP, LATITUDE_BANDS * LONGITUDE_BANDS * 3 * 2, gl.UNSIGNED_SHORT, 90*2);
             }
 
             if (christmas == "no") {
@@ -259,7 +266,7 @@
                 43, 46, 45
             ];
 
-            var normals = new Float32Array([
+            var normals = [
                 // piramid 1    
                 0, 0, 1, 0, 0, 1, 0, 0, 1,    // front
                 1, 0, 0, 1, 0, 0, 1, 0, 0,    // right
@@ -285,9 +292,52 @@
                 -1, 0, 0, -1, 0, 0, -1, 0, 0, // left
                 0, 0, 0, 0, 0, 0, 0, 0, 0,    // up
                 0, -1, 0, 0, -1, 0, 0, -1, 0, // down
-            ]);
-            
-            console.log(indexes.length)
+            ];
+
+            // SPHERE
+            for (var i = 0; i <= LATITUDE_BANDS; i++) {
+                var theta = i * Math.PI / LATITUDE_BANDS;
+                var sinTheta = Math.sin(theta);
+                var cosTheta = Math.cos(theta);
+
+                for (var j = 0; j <= LONGITUDE_BANDS; j++) {
+                    var phi = j * 2 * Math.PI / LONGITUDE_BANDS;
+                    var sinPhi = Math.sin(phi);
+                    var cosPhi = Math.cos(phi);
+
+                    var xS = sinPhi * sinTheta;
+                    var yS = cosTheta;
+                    var zS = cosPhi * sinTheta;
+
+                    vertexesAndTextures.push(RADIUS * (xS + POSITION));
+                    vertexesAndTextures.push(RADIUS * (yS + POSITION));
+                    vertexesAndTextures.push(RADIUS * zS);
+
+                    vertexesAndTextures.push(0.0);
+                    vertexesAndTextures.push(0.0);
+
+                    normals.push((POSITION+xS)/RADIUS);
+                    normals.push((POSITION+yS)/RADIUS);
+                    normals.push(zS/RADIUS);
+                }
+            }
+
+            for (var i = 0; i < LATITUDE_BANDS; i++) {
+                for (var j = 0; j < LONGITUDE_BANDS; j++) {
+                    var first = i * (LONGITUDE_BANDS + 1) + j +90;
+                    var second = first + LONGITUDE_BANDS + 1+90;
+
+                    indexes.push(first);
+                    indexes.push(second);
+                    indexes.push(first + 1);
+
+                    indexes.push(second);
+                    indexes.push(second + 1);
+                    indexes.push(first + 1);
+                }
+            }
+
+            console.log(indexes.length);
 
             // Write a_Position and a_Color using gl.ARRAY_BUFFER
             gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
@@ -302,7 +352,7 @@
             gl.vertexAttribPointer(vertexColorAttribute, 2, gl.FLOAT, false, 4 * (3 + 2), 4 * 3);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
-	        gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
+	        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
 
             var vertexNormalAttribute = gl.getAttribLocation(gl.program, "a_Normal");
             gl.enableVertexAttribArray(vertexNormalAttribute);
@@ -311,6 +361,8 @@
             // Write indexes in gl.ELEMENT_ARRAY_BUFFER
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.createBuffer());
             gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexes), gl.STATIC_DRAW);
+
+            return indexes.length;
         }
 		
 		function toRadian(g){

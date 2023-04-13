@@ -134,10 +134,12 @@
             }
 
             if (primitiveValue == "lines"){
-                gl.drawElements(gl.LINE_STRIP, n, gl.UNSIGNED_SHORT, 0);
+                gl.drawElements(gl.LINE_STRIP, 90, gl.UNSIGNED_SHORT, 0);
             } else if (primitiveValue == "triangles"){
-                gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_SHORT, 0);
+                gl.drawElements(gl.TRIANGLES, 90, gl.UNSIGNED_SHORT, 0);
             }
+
+            gl.drawElements(gl.TRIANGLES, 100*100*3*2, gl.UNSIGNED_SHORT, 90*2)
 
             if (christmas == "no") {
                 gl.uniform1i(l, false);
@@ -198,18 +200,18 @@
                 0.6, -0.25, -0.6,    0.0, 0.5, // v25
                 -0.6, -0.25, -0.6,   0.5, 0.5, // v26
                 // trunk
-                -0.2, -0.25, 0.2,    0.5, 0.5, // v27
+                -0.2, -0.25, 0.2,    0.0, 0.5, // v27
                 -0.2, -0.25, -0.2,   1.0, 0.5, // v28
-                -0.2, -0.60, 0.2,    0.5, 0.0, // v29
+                -0.2, -0.60, 0.2,    0.0, 0.0, // v29
                 -0.2, -0.60, -0.2,   1.0, 0.0, // v30
                 0.2, -0.25, 0.2,     0.5, 0.5, // v31
-                0.2, -0.25, -0.2,    1.0, 0.5, // v32
+                0.2, -0.25, -0.2,    0.5, 0.5, // v32
                 0.2, -0.60, 0.2,     0.5, 0.0, // v33
-                0.2, -0.60, -0.2,    1.0, 0.0, // v34
+                0.2, -0.60, -0.2,    0.5, 0.0, // v34
 
-                -0.2, -0.25, 0.2,    0.0, 0.5, // v35
+                -0.2, -0.25, 0.2,    1.0, 0.5, // v35
                 0.2, -0.25, 0.2,     0.5, 0.5, // v36
-                -0.2, -0.60, 0.2,    0.0, 0.0, // v37
+                -0.2, -0.60, 0.2,    1.0, 0.0, // v37
                 0.2, -0.60, 0.2,     0.5, 0.0, // v38
                 -0.2, -0.25, -0.2,   0.5, 0.5, // v39
                 0.2, -0.25, -0.2,    1.0, 0.5, // v40
@@ -217,8 +219,8 @@
                 0.2, -0.60, -0.2,    1.0, 0.0, // v42
 
                 -0.2, -0.60, 0.2,    0.5, 0.5, // v43
-                -0.2, -0.60, -0.2,   1.0, 0.5, // v44
-                0.2, -0.60, 0.2,     0.5, 0.0, // v45
+                -0.2, -0.60, -0.2,   0.5, 0.0, // v44
+                0.2, -0.60, 0.2,     1.0, 0.5, // v45
                 0.2, -0.60, -0.2,    1.0, 0.0, // v46
             ];
 
@@ -246,18 +248,18 @@
                 23, 24, 25,
                 23, 25, 26,
                 // trunk
-                27, 28, 29,
-                29, 28, 30,
-                35, 36, 37,
-                36, 37, 38,
-                31, 32, 33,
-                33, 34, 32,
-                39, 40, 41,
-                40, 41, 42,
-                27, 31, 32,
-                27, 28, 32,
-                43, 44, 46,
-                43, 46, 45,
+                27, 33, 29,
+                27, 33, 31,
+                36, 42, 38,
+                36, 42, 40,
+                32, 30, 34,
+                32, 30, 28,
+                39, 37, 41,
+                39, 37, 35,
+                28, 31, 32,
+                28, 31, 27,
+                43, 46, 44,
+                43, 46, 45
             ];
 
             var normals = [
@@ -289,7 +291,7 @@
             ];
 
             var r = 0.2;
-            var m = 30;
+            var m = 100;
             var p = 4;
 
             for (var a=1; a <= m; a++) {
@@ -317,17 +319,20 @@
                     normals.push((p+yS)/r);
                     normals.push(zS/r);
 
-                    var first = (a * (m + 1)) + b;
-                    var second = first + m + 1;
+                    var i = 90;
+                    var first = (a * (m + 1)) + b+i;
+                    var second = first + m + 1+i;
 
-                    indexes.push(first);
-                    indexes.push(second);
-                    indexes.push(first + 1);
-                    indexes.push(second);
-                    indexes.push(second + 1);
-                    indexes.push(first + 1);
+                    indexes.push(first+i);
+                    indexes.push(second+i);
+                    indexes.push(first + 1+i);
+                    indexes.push(second+i);
+                    indexes.push(second + 1+i);
+                    indexes.push(first + 1+i);
                 }
             }
+
+            console.log(indexes.length);
 
             // Write a_Position and a_Color using gl.ARRAY_BUFFER
             gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());

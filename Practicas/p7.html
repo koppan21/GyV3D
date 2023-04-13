@@ -116,12 +116,14 @@
             var speed = document.getElementById("speed").value;
             var christmas = document.querySelector('input[name="christmas"]:checked').value;
 
-            var translatedSphere = glMatrix.mat4.fromTranslation(glMatrix.mat4.create(), [POSITION, POSITION, 0.0]);
-
             var translated = glMatrix.mat4.fromXRotation(glMatrix.mat4.create(), countX);
             var rotated = glMatrix.mat4.fromYRotation(glMatrix.mat4.create(), countY*speed);
             var matrix = glMatrix.mat4.multiply(glMatrix.mat4.create(), translated, rotated);
             var mvMatrixUniform = gl.getUniformLocation(gl.program, "u_mvMatrix");
+
+            var translatedSphere = glMatrix.mat4.fromTranslation(glMatrix.mat4.create(), [POSITION, POSITION, 0.0]);
+            var stopSphere = glMatrix.mat4.fromYRotation(glMatrix.mat4.create(), 0);
+            var sphere = glMatrix.mat4.multiply(glMatrix.mat4.create(), translatedSphere, stopSphere);
             
             // Get the normal direction using the model Matrix
             var normalMatrixInvert = glMatrix.mat4.invert(glMatrix.mat4.create(), matrix);
@@ -152,14 +154,14 @@
 
             if (primitiveValue == "lines"){
                 gl.drawElements(gl.LINE_STRIP, 90, gl.UNSIGNED_SHORT, 0);
-                gl.uniformMatrix4fv(mvMatrixUniform, false, translatedSphere);
-                gl.drawElements(gl.LINE_STRIP, LATITUDE_BANDS * LONGITUDE_BANDS * 3 * 2, gl.UNSIGNED_SHORT, 90*2);
             } else if (primitiveValue == "triangles"){
                 gl.drawElements(gl.TRIANGLES, 90, gl.UNSIGNED_SHORT, 0);
-                gl.uniformMatrix4fv(mvMatrixUniform, false, translatedSphere);
-                gl.drawElements(gl.LINE_STRIP, LATITUDE_BANDS * LONGITUDE_BANDS * 3 * 2, gl.UNSIGNED_SHORT, 90*2);
             }
 
+            gl.uniformMatrix4fv(mvMatrixUniform, false, sphere);
+            gl.drawElements(gl.LINE_STRIP, LATITUDE_BANDS * LONGITUDE_BANDS * 3 * 2, gl.UNSIGNED_SHORT, 90*2);
+
+            // Lights
             if (christmas == "no") {
                 gl.uniform1i(l, false);
             } else if (christmas == "yes") {

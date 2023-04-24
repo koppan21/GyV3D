@@ -16,7 +16,7 @@
       var sceneHeight = window.innerHeight - 20;
 
       var camera = new THREE.PerspectiveCamera(90, sceneWidth / sceneHeight, 0.01, 100);
-      camera.position.set(0, -10, 15); // Set the initial Camera Position.
+      camera.position.set(0, 0, 15); // Set the initial Camera Position.
       camera.lookAt(scene.position);
       
       var renderer = new THREE.WebGLRenderer({
@@ -27,12 +27,20 @@
       document.body.appendChild(renderer.domElement);
 
       var light = getLight();
-      var leftBorder = getBorder("left", 1, 20, 2, -5, 0, 0);
-      var rightBorder = getBorder("right", 1, 20, 2, 5, 0, 0);
-      var topBorder = getBorder("top", 11, 1, 2, 0, 10, 0);
-      var downBorder = getBorder("down", 9, 1, 2, 0, -9.5, 0);
+      var leftBorder = getBorder("left", 1, 20, 2, -10, 0, 0);
+      var rightBorder = getBorder("right", 1, 20, 2, 10, 0, 0);
+      var topBorder = getBorder("top", 21, 1, 2, 0, 10, 0);
+      var downBorder = getBorder("down", 21, 1, 2, 0, -9.5, 0);
       var sphere = getSphere();
       var floor = getFloor();
+
+      var block0 = getBlocks(2, 1, 1, -8, 8, 0);
+      var block1 = getBlocks(2, 1, 1, -6, 8, 0);
+      var block2 = getBlocks(2, 1, 1, -4, 8, 0);
+      var block3 = getBlocks(2, 1, 1, -2, 8, 0);
+      var block4 = getBlocks(2, 1, 1, 0, 8, 0);
+      var block5 = getBlocks(2, 1, 1, 2, 8, 0);
+      var row0 = [block0, block1, block2, block3, block4, block5];
 
       scene.add(light);
       scene.add(leftBorder);
@@ -41,6 +49,7 @@
       scene.add(downBorder);
       scene.add(sphere);
       scene.add(floor);
+      scene.add(row0);
 
       var borders = [ leftBorder, rightBorder, topBorder, downBorder ];
 
@@ -65,9 +74,9 @@
       light.position.set(4, 4, 4);
       light.castShadow = true;
       light.shadow.camera.near = 0;
-      light.shadow.camera.far = 16;
+      light.shadow.camera.far = 18;
       light.shadow.camera.left = -8;
-      light.shadow.camera.right = 5;
+      light.shadow.camera.right = 8;
       light.shadow.camera.top = 10;
       light.shadow.camera.bottom = -10;
       light.shadow.mapSize.width = 4096;
@@ -87,7 +96,7 @@
    }
 
    function getFloor() {
-      var geometry = new THREE.PlaneGeometry(10, 20);
+      var geometry = new THREE.PlaneGeometry(20, 20);
       var mesh = new THREE.Mesh(geometry, getWoodMaterial());
       mesh.receiveShadow = true;
 
@@ -102,6 +111,15 @@
       mesh.name = name;
 
       return mesh;
+   }
+
+   function getBlocks(x, y, z, posX, posY, posZ) {
+    var geometry = new THREE.BoxGeometry(x, y, z);
+    var mesh = new THREE.Mesh(geometry, getWoodMaterial());
+    mesh.receiveShadow = true;
+    mesh.position.set(posX, posY, posZ);
+
+    return mesh;
    }
 
    function getWoodMaterial() {

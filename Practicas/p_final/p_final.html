@@ -34,13 +34,43 @@
       var sphere = getSphere();
       var floor = getFloor();
 
-      var block0 = getBlocks(2, 1, 1, -8, 8, 0);
-      var block1 = getBlocks(2, 1, 1, -6, 8, 0);
-      var block2 = getBlocks(2, 1, 1, -4, 8, 0);
-      var block3 = getBlocks(2, 1, 1, -2, 8, 0);
-      var block4 = getBlocks(2, 1, 1, 0, 8, 0);
-      var block5 = getBlocks(2, 1, 1, 2, 8, 0);
-      var row0 = [block0, block1, block2, block3, block4, block5];
+      var row00 = getBlocks(-8, 8.5, 0);
+      var row01 = getBlocks(-4, 8.5, 0);
+      var row02 = getBlocks(0, 8.5, 0);
+      var row03 = getBlocks(4, 8.5, 0);
+      var row04 = getBlocks(8, 8.5, 0);
+      
+      var row10 = getBlocks(-8, 7, 0);
+      var row11 = getBlocks(-4, 7, 0);
+      var row12 = getBlocks(0, 7, 0);
+      var row13 = getBlocks(4, 7, 0);
+      var row14 = getBlocks(8, 7, 0);
+      
+      var row20 = getBlocks(-8, 5.5, 0);
+      var row21 = getBlocks(-4, 5.5, 0);
+      var row22 = getBlocks(0, 5.5, 0);
+      var row23 = getBlocks(4, 5.5, 0);
+      var row24 = getBlocks(8, 5.5, 0);
+
+      var row30 = getBlocks(-8, 4, 0);
+      var row31 = getBlocks(-4, 4, 0);
+      var row32 = getBlocks(0, 4, 0);
+      var row33 = getBlocks(4, 4, 0);
+      var row34 = getBlocks(8, 4, 0);
+
+      let row0 = [row00, row01, row02, row03, row04];
+      let row1 = [row10, row11, row12, row13, row14];
+      let row2 = [row20, row21, row22, row23, row24];
+      let row3 = [row30, row31, row32, row33, row34];
+
+      let blocks = [row0, row1, row2, row3];
+
+      for (let i=0; i<6; i++) {
+        scene.add(row0[i]);
+        scene.add(row1[i]);
+        scene.add(row2[i]);
+        scene.add(row3[i]);
+      }
 
       scene.add(light);
       scene.add(leftBorder);
@@ -49,7 +79,6 @@
       scene.add(downBorder);
       scene.add(sphere);
       scene.add(floor);
-      scene.add(row0);
 
       var borders = [ leftBorder, rightBorder, topBorder, downBorder ];
 
@@ -113,8 +142,8 @@
       return mesh;
    }
 
-   function getBlocks(x, y, z, posX, posY, posZ) {
-    var geometry = new THREE.BoxGeometry(x, y, z);
+   function getBlocks(posX, posY, posZ) {
+    var geometry = new THREE.BoxGeometry(3.5, 1, 1);
     var mesh = new THREE.Mesh(geometry, getWoodMaterial());
     mesh.receiveShadow = true;
     mesh.position.set(posX, posY, posZ);

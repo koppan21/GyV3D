@@ -9,6 +9,7 @@
 <script>
    var stepX = 0.1;
    var stepY = 0.2;
+   var bricks = [];
 
    function init() {
       var scene = new THREE.Scene();
@@ -34,45 +35,6 @@
       var sphere = getSphere();
       var floor = getFloor();
 
-      var row00 = getBricks(-8, 8.5, 0);
-      var row01 = getBricks(-4, 8.5, 0);
-      var row02 = getBricks(0, 8.5, 0);
-      var row03 = getBricks(4, 8.5, 0);
-      var row04 = getBricks(8, 8.5, 0);
-      
-      var row10 = getBricks(-8, 7, 0);
-      var row11 = getBricks(-4, 7, 0);
-      var row12 = getBricks(0, 7, 0);
-      var row13 = getBricks(4, 7, 0);
-      var row14 = getBricks(8, 7, 0);
-      
-      var row20 = getBricks(-8, 5.5, 0);
-      var row21 = getBricks(-4, 5.5, 0);
-      var row22 = getBricks(0, 5.5, 0);
-      var row23 = getBricks(4, 5.5, 0);
-      var row24 = getBricks(8, 5.5, 0);
-
-      var row30 = getBricks(-8, 4, 0);
-      var row31 = getBricks(-4, 4, 0);
-      var row32 = getBricks(0, 4, 0);
-      var row33 = getBricks(4, 4, 0);
-      var row34 = getBricks(8, 4, 0);
-
-      let row0 = [row00, row01, row02, row03, row04];
-      let row1 = [row10, row11, row12, row13, row14];
-      let row2 = [row20, row21, row22, row23, row24];
-      let row3 = [row30, row31, row32, row33, row34];
-
-      let bricks = row0.concat(row1, row2, row3);
-      console.log(bricks)
-
-      for (let i=0; i<6; i++) {
-        scene.add(row0[i]);
-        scene.add(row1[i]);
-        scene.add(row2[i]);
-        scene.add(row3[i]);
-      }
-
       scene.add(light);
       scene.add(leftBorder);
       scene.add(rightBorder);
@@ -80,6 +42,8 @@
       scene.add(downBorder);
       scene.add(sphere);
       scene.add(floor);
+
+      getBricks();
       
       let borders = [ leftBorder, rightBorder, topBorder, downBorder ];
 
@@ -143,13 +107,18 @@
       return mesh;
    }
 
-   function getBricks(posX, posY, posZ) {
+   function getBricks() {
     var geometry = new THREE.BoxGeometry(3.5, 1, 1);
-    var mesh = new THREE.Mesh(geometry, getBrickMaterial());
-    mesh.receiveShadow = true;
-    mesh.position.set(posX, posY, posZ);
-
-    return mesh;
+    for (var i=0; i<4; i++) {
+      bricks[i] = [];
+      for (var j=0; j<5; j++) {
+         var mesh = new THREE.Mesh(geometry, getBrickMaterial());
+         bricks[i][j] = { status: 0,
+            mesh: mesh };
+         mesh.position.set(j*3.5+3.5/2, i/2, 0);
+         scene.add(mesh);
+      }
+    }
    }
 
    function getWoodMaterial() {

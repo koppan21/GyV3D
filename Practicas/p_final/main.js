@@ -39,7 +39,7 @@ var game = {
 start();
 
 function initEdges() {
-    var sidegeometry = new THREE.BoxGeometry(1, 400, 100);
+    var sidegeometry = new THREE.BoxGeometry(1, 400, 1);
     var sidematerial = new THREE.MeshPhongMaterial(
 	{color: 0x2222aa,
 	 specular: 0x333333,
@@ -47,7 +47,7 @@ function initEdges() {
     );
     var leftbox = new THREE.Mesh(sidegeometry, sidematerial);
     var rightbox = new THREE.Mesh(sidegeometry, sidematerial);
-    var topGeometry = new THREE.BoxGeometry(400, 1, 100);
+    var topGeometry = new THREE.BoxGeometry(400, 1, 1);
     var backbox = new THREE.Mesh(new THREE.BoxGeometry(400, 400, 1),
 				 sidematerial);
     var botbox = new THREE.Mesh(topGeometry, sidematerial);
@@ -264,15 +264,14 @@ function resetPaddle() {
 }
 
 function initGame() {
-    var geometry = new THREE.BoxGeometry(blockWidth, blockHeight, 100);
+    var geometry = new THREE.BoxGeometry(blockWidth, blockHeight, 1);
     for (var i = 0; i < ROWS; i++) {
 	blocks[i] = [];
 	for (var j = 0; j < COLS; j++) {
-	    var material = new THREE.MeshPhongMaterial(
-		{color: new THREE.Color(randColor(),
-					randColor(),
-					randColor())
-		});
+	    var texture = new THREE.TextureLoader().load("blue-square.png");
+        var material = new THREE.MeshPhysicalMaterial({
+            map : texture
+        });
 	    var object = new THREE.Mesh(geometry, material);
 	    blocks[i][j] = { status: 0,
 			     object: object

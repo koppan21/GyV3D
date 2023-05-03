@@ -34,36 +34,37 @@
       var sphere = getSphere();
       var floor = getFloor();
 
-      var row00 = getBlocks(-8, 8.5, 0);
-      var row01 = getBlocks(-4, 8.5, 0);
-      var row02 = getBlocks(0, 8.5, 0);
-      var row03 = getBlocks(4, 8.5, 0);
-      var row04 = getBlocks(8, 8.5, 0);
+      var row00 = getBricks(-8, 8.5, 0);
+      var row01 = getBricks(-4, 8.5, 0);
+      var row02 = getBricks(0, 8.5, 0);
+      var row03 = getBricks(4, 8.5, 0);
+      var row04 = getBricks(8, 8.5, 0);
       
-      var row10 = getBlocks(-8, 7, 0);
-      var row11 = getBlocks(-4, 7, 0);
-      var row12 = getBlocks(0, 7, 0);
-      var row13 = getBlocks(4, 7, 0);
-      var row14 = getBlocks(8, 7, 0);
+      var row10 = getBricks(-8, 7, 0);
+      var row11 = getBricks(-4, 7, 0);
+      var row12 = getBricks(0, 7, 0);
+      var row13 = getBricks(4, 7, 0);
+      var row14 = getBricks(8, 7, 0);
       
-      var row20 = getBlocks(-8, 5.5, 0);
-      var row21 = getBlocks(-4, 5.5, 0);
-      var row22 = getBlocks(0, 5.5, 0);
-      var row23 = getBlocks(4, 5.5, 0);
-      var row24 = getBlocks(8, 5.5, 0);
+      var row20 = getBricks(-8, 5.5, 0);
+      var row21 = getBricks(-4, 5.5, 0);
+      var row22 = getBricks(0, 5.5, 0);
+      var row23 = getBricks(4, 5.5, 0);
+      var row24 = getBricks(8, 5.5, 0);
 
-      var row30 = getBlocks(-8, 4, 0);
-      var row31 = getBlocks(-4, 4, 0);
-      var row32 = getBlocks(0, 4, 0);
-      var row33 = getBlocks(4, 4, 0);
-      var row34 = getBlocks(8, 4, 0);
+      var row30 = getBricks(-8, 4, 0);
+      var row31 = getBricks(-4, 4, 0);
+      var row32 = getBricks(0, 4, 0);
+      var row33 = getBricks(4, 4, 0);
+      var row34 = getBricks(8, 4, 0);
 
       let row0 = [row00, row01, row02, row03, row04];
       let row1 = [row10, row11, row12, row13, row14];
       let row2 = [row20, row21, row22, row23, row24];
       let row3 = [row30, row31, row32, row33, row34];
 
-      let blocks = [row0 + row1 + row2 + row3];
+      let bricks = row0.concat(row1, row2, row3);
+      console.log(bricks)
 
       for (let i=0; i<6; i++) {
         scene.add(row0[i]);
@@ -142,9 +143,9 @@
       return mesh;
    }
 
-   function getBlocks(posX, posY, posZ) {
+   function getBricks(posX, posY, posZ) {
     var geometry = new THREE.BoxGeometry(3.5, 1, 1);
-    var mesh = new THREE.Mesh(geometry, getWoodMaterial());
+    var mesh = new THREE.Mesh(geometry, getBrickMaterial());
     mesh.receiveShadow = true;
     mesh.position.set(posX, posY, posZ);
 
@@ -162,6 +163,16 @@
 
       return material;
    }
+   
+   function getBrickMaterial() {
+      var texture = new THREE.TextureLoader().load("blue-square.png");
+      var material = new THREE.MeshPhysicalMaterial({
+         map : texture
+      });
+      material.side = THREE.DoubleSide;
+
+      return material; 
+   }
 
    function checkCollision(sphere, borders) {
       var originPosition = sphere.position.clone();
@@ -174,15 +185,17 @@
          globalVertex.copy( localVertex ).applyMatrix4( sphere.matrixWorld );
          var directionVector = globalVertex.sub(sphere.position);
          var ray = new THREE.Raycaster(originPosition, directionVector.clone().normalize());
-         var collisionResults = ray.intersectObjects(borders);
-         if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
-            // Collision detected
-            if (collisionResults[0].object.name == "left" || collisionResults[0].object.name == "right") {
+         var borderCollision = ray.intersectObjects(borders);
+         // var brickCollision = ray.intersectObjects(bricks);
+         if (borderCollision.length > 0 && borderCollision[0].distance < directionVector.length()) {
+            // Wall collision detected
+            if (borderCollision[0].object.name == "left" || borderCollision[0].object.name == "right") {
                stepX *= -1;
             }
-            if (collisionResults[0].object.name == "down" || collisionResults[0].object.name == "top") {
+            if (borderCollision[0].object.name == "down" || borderCollision[0].object.name == "top") {
                stepY *= -1;
-            }            
+            }
+            // Brick collision detected
             break;
          }
       }

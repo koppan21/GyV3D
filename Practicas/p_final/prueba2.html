@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Práctica final: Breakout</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.148.0/three.min.js"></script>
+
+<script>
+   var width = 20,
+      height = 20,
+      rows = 4,
+      cols = 5;
+
+   var game = {
+      state: "ready",
+      count: rows*cols,
+      score: 0,
+      lives: 3
+   }
+
+   var paddle = {
+      speed: 320,
+      x: 0,
+      y: 0,
+      dir: 0,
+      mesh: null
+   }
+
+   var bricks = [],
+      bricksW = 4,
+      bricksH = 1;
+   
+   var sphere = {
+      x: 0,
+      y: 0,
+      radius: 0.5,
+      speed: {x: 0, y: 250},
+      mesh: null
+   }
+
+   function initBorder() {
+      var side_geometry = new THREE.BoxGeometry(1, 21, 2);
+      var top_geometry = new THREE.BoxGeometry(21, 1, 2);
+      var material = new THREE.MeshPhongMaterial(
+         {color: 0x2222aa,
+         specular: 0x333333,
+         shininess: 5}
+      );
+
+      var leftBorder = new THREE.Mesh(side_geometry, material);
+      var rightBorder = new THREE.Mesh(side_geometry, material);
+      var topBorder = new THREE.Mesh(top_geometry, material);
+      var downBorder = new THREE.Mesh(top_geometry, material);
+
+      leftBorder.position.set(-10, 0, 0);
+      rightBorder.position.set(10, 0, 0);
+      topBorder.position.set(0, 10, 0);
+      downBorder.position.set(0, -10, 0);
+
+      scene.add(leftBorder);
+      scene.add(rightBorder);
+      scene.add(topBorder);
+      scene.add(downBorder);
+   }
+
+   function initLights() {
+      var light = new THREE.DirectionalLight(0xffffff, 0.7);
+      var ambient = new THREE.AmbientLight(0xffffff, 0.2);
+      light.position.set(4, 4, 4);
+      light.castShadow = true;
+      light.shadow.camera.near = 0;
+      light.shadow.camera.far = 18;
+      light.shadow.camera.left = -8;
+      light.shadow.camera.right = 8;
+      light.shadow.camera.top = 10;
+      light.shadow.camera.bottom = -10;
+      light.shadow.mapSize.width = 4096;
+      light.shadow.mapSize.height = 4096;
+      scene.add(light);
+      scene.add(ambient);
+   }
+
+   function init() {
+      var scene = new THREE.Scene();
+      var sceneWidth = window.innerWidth-20;
+      var sceneHeight = window.innerHeight-20;
+
+      var camera = new THREE.PerspectiveCamera(90, sceneWidth / sceneHeight, 0.01, 100);
+      camera.position.set(0, 0, 15); // Set the initial Camera Position.
+      camera.lookAt(scene.position);
+      
+      var renderer = new THREE.WebGLRenderer({
+         antialias : true
+      });
+      renderer.shadowMap.enabled = true;
+      renderer.setSize(sceneWidth, sceneHeight);
+      document.body.appendChild(renderer.domElement);
+
+      initLights();
+      initBorder();
+      
+      var time = 0;
+      function mainLoop(timestamp) {
+         requestAnimationFrame(mainLoop);
+         renderer.render(scene, camera);
+         var delta = timestamp - time;
+         time = timestamp;
+      }
+      mainLoop();
+   }
+</script>
+</head>
+
+<body onload="init()"></body>
+
+</html>

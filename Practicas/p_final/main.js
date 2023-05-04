@@ -1,19 +1,19 @@
 //"use strict";
 
 var blocks = [],
-    width = 400,
-    height = 400,
+    width = 20,
+    height = 20,
     ROWS = 4,
     COLS = 5,
-    blockWidth = 80,
-    blockHeight = 20,
+    blockWidth = 4,
+    blockHeight = 1,
     renderer = null,
     scene = null,
     camera = null;
 
 var paddle = {
-    width: 80,
-    height: 10,
+    width: 4,
+    height: 1,
     speed: 320,
     x: 0,
     y: 0,    
@@ -24,7 +24,7 @@ var paddle = {
 var ball = {
     x: 0,
     y: 0,
-    radius: 7,
+    radius: 1,
     velocity: {x: 0, y: 250},
     mesh: null
 };
@@ -39,7 +39,7 @@ var game = {
 start();
 
 function initEdges() {
-    var sidegeometry = new THREE.BoxGeometry(1, 400, 1);
+    var sidegeometry = new THREE.BoxGeometry(1, 21, 1);
     var sidematerial = new THREE.MeshPhongMaterial(
 	{color: 0x2222aa,
 	 specular: 0x333333,
@@ -47,16 +47,16 @@ function initEdges() {
     );
     var leftbox = new THREE.Mesh(sidegeometry, sidematerial);
     var rightbox = new THREE.Mesh(sidegeometry, sidematerial);
-    var topGeometry = new THREE.BoxGeometry(400, 1, 1);
-    var backbox = new THREE.Mesh(new THREE.BoxGeometry(400, 400, 1),
+    var topGeometry = new THREE.BoxGeometry(21, 1, 1);
+    var backbox = new THREE.Mesh(new THREE.BoxGeometry(-20, 20, 1),
 				 sidematerial);
     var botbox = new THREE.Mesh(topGeometry, sidematerial);
     var topbox = new THREE.Mesh(topGeometry, sidematerial);
-    leftbox.position.set(-1, 200, 0);
-    rightbox.position.set(width, 200, 0);
-    backbox.position.set(200, 200, -49);
-    botbox.position.set(200, 0, 0);
-    topbox.position.set(200, 400, 0);
+    leftbox.position.set(-10, 0, 0);
+    rightbox.position.set(10, 0, 0);
+    backbox.position.set(0, 0, 0);
+    botbox.position.set(0, 10, 0);
+    topbox.position.set(0, -10, 0);
     scene.add(botbox);
     scene.add(leftbox);
     scene.add(rightbox);
@@ -67,7 +67,16 @@ function initEdges() {
 function initLights() {
     var light = new THREE.DirectionalLight(0xffffff, 0.7);
     var ambient = new THREE.AmbientLight(0xffffff, 0.2);
-    light.position.set(50, 10, 100);
+    light.position.set(4, 4, 4);
+    light.castShadow = true;
+    light.shadow.camera.near = 0;
+    light.shadow.camera.far = 18;
+    light.shadow.camera.left = -8;
+    light.shadow.camera.right = 8;
+    light.shadow.camera.top = 10;
+    light.shadow.camera.bottom = -10;
+    light.shadow.mapSize.width = 4096;
+    light.shadow.mapSize.height = 4096;
     scene.add(light);
     scene.add(ambient);
 }
@@ -101,13 +110,12 @@ function drawText(msg) {
 
 function start() {
     scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    camera = new THREE.PerspectiveCamera(90, window.innerWidth/window.innerHeight, 0.1, 1000);
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
-    camera.position.z = 400;
-    camera.position.x = 200;
-    camera.position.y = 200;
+    camera.position.set(0, 0, 15); // Set the initial Camera Position.
+    camera.lookAt(scene.position);
     initLights();
     initEdges();
     initStatusText();
@@ -282,7 +290,7 @@ function initGame() {
 	}
     }
     var material = new THREE.MeshPhongMaterial({color: 0x00ff00});
-    var paddleGeometry = new THREE.BoxGeometry(paddle.width, paddle.height, 50);
+    var paddleGeometry = new THREE.BoxGeometry(paddle.width, paddle.height, 1);
     paddle.mesh = new THREE.Mesh(paddleGeometry, material);
     scene.add(paddle.mesh);
     ball.mesh = new THREE.PointLight(0xffffff, 1, 200);

@@ -41,7 +41,7 @@
       var leftBorder = getBorder("left", 1, 21, 2.5, -10, 0, 0);
       var rightBorder = getBorder("right", 1, 21, 2.5, 10, 0, 0);
       var topBorder = getBorder("top", 21, 1, 2.5, 0, 10, 0);
-      var downBorder = getBorder("down", 21, 1, 2.5, 0, -10, 0);
+      var downBorder = getBorder("down", 4, 1, 2.5, 0, -10, 0);
       var sphere = getSphere();
       var floor = getFloor();
 
@@ -247,12 +247,17 @@
 
             var index = bricks.indexOf(brickCollision[0].object);
             scene.remove(bricks[index]);
-            bricks.splice(index, 1); 
+            bricks.splice(index, 1);
 
-            game.score++;
+            if (brickCollision[0].object.position.y >= 8) {
+               game.score += 2;
+            } else {
+               game.score++;
+            }
+
             game.count--;
             status.innerHTML = "Score: " + game.score + " Lives: " + game.lives;
-            // console.log(game.score, game.count)
+            console.log(game.score, game.count)
             break;
          }
       }

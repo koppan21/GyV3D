@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Practica Final</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.148.0/three.min.js"></script>
+
+<script>
+   var stepX = 0.1;
+   var stepY = 0.1;
+   var speedPlayer = 0.3;
+   var maxPlayer = 6.75;
+   var sizePlayer = 3;
+   var ballmove = false;
+   var direccion = 0;
+   var multiplicadorX = 1;
+   var multiplicadorY = 1;
+   var lives = 3;
+   var puntuacion_g = 0;
+   var puntuacion_turno = 0;
+   var n_bloques = 0;
+   var posiciones = [];
+
+   function getRandomInt(max) {
+      return Math.floor(Math.random() * max);
+   }
+
+   function init() {
+      var scene = new THREE.Scene();
+      var sceneWidth = window.innerWidth - 20;
+      var sceneHeight = window.innerHeight - 20;
+
+      var camera = new THREE.PerspectiveCamera(90, sceneWidth / sceneHeight, 0.01, 100);
+      camera.position.set(0, 0, 15); // Set the initial Camera Position.
+      camera.lookAt(0,0,0);
+      
+      var renderer = new THREE.WebGLRenderer({
+         antialias : true
+      });
+      renderer.shadowMap.enabled = true;
+      renderer.setSize(sceneWidth, sceneHeight);
+      document.body.appendChild(renderer.domElement);
+
+      var leftBorder = getBorder("left", 1, 20, 2, -8.75, 0, 0,getWoodMaterial());
+      var rightBorder = getBorder("right", 1, 20, 2, 8.75, 0, 0,getWoodMaterial());
+      var topBorder = getBorder("top", 18.5, 1, 2, 0, 10, 0,getWoodMaterial());
+      var downBorder = getBorder("player", sizePlayer, 0.5, 2, 0, -9.5, 0,getStoneMaterial());
+      // fila 1
+      var block1 = getBlock(3, 1, 2, -6.5, 8.5, 0, getDiamondMaterial())
+      var block2 = getBlock(3, 1, 2, -3.25, 8.5, 0,getDiamondMaterial())
+      var block3 = getBlock(3, 1, 2, 0, 8.5, 0,    getDiamondMaterial())
+      var block4 = getBlock(3, 1, 2, 3.25, 8.5, 0, getDiamondMaterial())
+      var block5 = getBlock(3, 1, 2, 6.5, 8.5, 0,  getDiamondMaterial())
+      // fila2
+      var block6= getBlock(3, 1, 2, -6.5, 7.25, 0, getDiamondMaterial())
+      var block7= getBlock(3, 1, 2, -3.25, 7.25, 0,getDiamondMaterial())
+      var block8= getBlock(3, 1, 2, 0, 7.25, 0,    getDiamondMaterial())
+      var block9= getBlock(3, 1, 2, 3.25, 7.25, 0, getDiamondMaterial())
+      var block10 = getBlock(3, 1, 2, 6.5, 7.25, 0, getDiamondMaterial())
+      // fila 3
+      var block11 = getBlock(3, 1, 2, -6.5, 6, 0, getGoldMaterial())
+      var block12 = getBlock(3, 1, 2, -3.25, 6, 0,getGoldMaterial())
+      var block13 = getBlock(3, 1, 2, 0, 6, 0,    getGoldMaterial())
+      var block14 = getBlock(3, 1, 2, 3.25, 6, 0, getGoldMaterial())
+      var block15 = getBlock(3, 1, 2, 6.5, 6, 0,  getGoldMaterial())
+      // fila 4
+      var block16 = getBlock(3, 1, 2, -6.5, 4.75, 0, getGoldMaterial())
+      var block17 = getBlock(3, 1, 2, -3.25, 4.75, 0,getGoldMaterial())
+      var block18 = getBlock(3, 1, 2, 0, 4.75, 0,    getGoldMaterial())
+      var block19 = getBlock(3, 1, 2, 3.25, 4.75, 0, getGoldMaterial())
+      var block20 = getBlock(3, 1, 2, 6.5, 4.75, 0,  getGoldMaterial())
+      // fila 5
+      var block21 = getBlock(3, 1, 2, -6.5, 3.5, 0, getCoalMaterial())
+      var block22 = getBlock(3, 1, 2, -3.25, 3.5, 0,getCoalMaterial())
+      var block23 = getBlock(3, 1, 2, 0, 3.5, 0,    getCoalMaterial())
+      var block24 = getBlock(3, 1, 2, 3.25, 3.5, 0, getCoalMaterial())
+      var block25 = getBlock(3, 1, 2, 6.5, 3.5, 0,  getCoalMaterial())
+      // fila 6
+      var block26 = getBlock(3, 1, 2, -6.5, 2.25, 0, getCoalMaterial())
+      var block27 = getBlock(3, 1, 2, -3.25, 2.25, 0,getCoalMaterial())
+      var block28 = getBlock(3, 1, 2, 0, 2.25, 0,    getCoalMaterial())
+      var block29 = getBlock(3, 1, 2, 3.25, 2.25, 0, getCoalMaterial())
+      var block30 = getBlock(3, 1, 2, 6.5, 2.25, 0,  getCoalMaterial())
+      
+      var sphere = getSphere();
+      var light = getLight();
+      var floor = getFloor();
+
+      var elementos = [
+         light, leftBorder, rightBorder, topBorder,downBorder, sphere, floor,
+         block1, block2, block3, block4, block5,
+         block6, block7, block8, block9, block10,
+         block11, block12, block13, block14, block15,
+         block16, block17, block18, block19, block20,
+         block21, block22, block23, block24, block25,
+         block26, block27, block28, block29, block30,
+      ];
+
+      for(let i = 0; i < elementos.length; i++){
+         scene.add(elementos[i]) // añado los elementos a la escena
+      }
+
+      var borders = [ leftBorder, rightBorder, topBorder, downBorder ]; // contornos y jugados
+
+      var indice = elementos.indexOf(block1)
+
+      var blocks = [] // para los rebotes de los bloques
+      for(let x = indice; x < elementos.length; x++){
+        blocks.push(elementos[x])
+      }
+
+      var vidas = getlives(scene)
+
+      document.onkeydown = function(e) {
+        switch (e.keyCode) {
+            case 37: // izquierda
+
+                if(ballmove){
+
+                  if(downBorder.position.x <= -maxPlayer){
+                  downBorder.position.x = -maxPlayer
+                  }else {
+                   downBorder.position.x -= speedPlayer
+                  }
+               }
+            break;
+
+            case 39: // derecha
+
+                if(ballmove){
+
+                  if(downBorder.position.x >= maxPlayer){
+                     downBorder.position.x = maxPlayer
+                  }else {
+                     downBorder.position.x += speedPlayer
+                  }
+               }
+            break;
+
+            case 32: // espacio
+               if(ballmove){
+                 pass;
+               }else{
+                  direccion = getRandomInt(2);
+                  ballmove = true
+               }
+            break;
+            
+        }
+        //console.log(player.position.x)
+        }
+      
+      animate(sphere, downBorder, borders, blocks, renderer, scene, camera, vidas);
+   }
+
+   function animate(sphere, downBorder, borders, blocks, renderer, scene, camera, vidas) {
+      checkCollision(scene, sphere, borders, blocks);
+      console.log('Score', puntuacion_g)
+      if(ballmove){
+
+         if (direccion == 0){ // izquierda
+            sphere.position.x -= stepX * multiplicadorX;
+            sphere.position.y += stepY * multiplicadorY;
+         }else{ // derecha
+            sphere.position.x += stepX * multiplicadorX;
+            sphere.position.y += stepY * multiplicadorY;
+         }
+
+      }
+     
+      if(blocks.length == 0){
+         alert('YOU WIN!!')
+         location.reload();
+      }
+      
+      if(sphere.position.y < -9.2){
+         if (lives != 1){
+            scene.remove(vidas.pop());
+            ballmove = false
+            sphere.position.x = 0;
+            sphere.position.y = -9;
+            downBorder.position.x = 0;
+            multiplicadorX = 1;
+            multiplicadorY = 1;
+            puntuacion_g += puntuacion_turno;
+            lives -= 1;
+         }else{
+            alert('GAME OVER')
+            location.reload();
+         }
+         
+      }
+
+      renderer.render(scene, camera);
+        
+      renderer.setAnimationLoop( function() {
+         animate(sphere, downBorder, borders, blocks, renderer, scene, camera, vidas);
+      });
+   }
+
+   function corazon(x_pos,y_pos,z_pos){
+      var heartShape = new THREE.Shape();
+      var x = 0;
+      var y = 0;
+      heartShape.moveTo( x + 5, y + 5 );
+      heartShape.bezierCurveTo( x + 5, y + 5, x + 4, y, x, y );
+      heartShape.bezierCurveTo( x - 6, y, x - 6, y + 7,x - 6, y + 7 );
+      heartShape.bezierCurveTo( x - 6, y + 11, x - 3, y + 15.4, x + 5, y + 19 );
+      heartShape.bezierCurveTo( x + 12, y + 15.4, x + 16, y + 11, x + 16, y + 7 );
+      heartShape.bezierCurveTo( x + 16, y + 7, x + 16, y, x + 10, y );
+      heartShape.bezierCurveTo( x + 7, y, x + 5, y + 5, x + 5, y + 5 );
+
+      var geometry = new THREE.ShapeGeometry( heartShape );
+      var material = new THREE.MeshBasicMaterial( { color: 0xFF0000 } );
+      var heart = new THREE.Mesh( geometry, material ) ;
+      heart.position.set(x_pos,y_pos,z_pos);
+      heart.scale.set(0.05,0.05,0.05)
+      heart.rotation.z = Math.PI
+
+      return heart;
+   }
+
+   function getlives(scene){
+      var heartshape1 = corazon(4.5,12,1);
+
+      var heartshape2 = corazon(6,12,1);
+
+      var heartshape3 = corazon(7.5,12,1);
+
+      scene.add( heartshape1 );
+      scene.add( heartshape2 );
+      scene.add( heartshape3 );
+
+      var vidas = [heartshape1, heartshape2, heartshape3]
+
+      return vidas;
+   }
+
+   function getLight() {
+      var light = new THREE.DirectionalLight();
+      light.position.set(4, 4, 4);
+      light.castShadow = true;
+      light.shadow.camera.near = 0;
+      light.shadow.camera.far = 20;
+      light.shadow.camera.left = -15;
+      light.shadow.camera.right = 15;
+      light.shadow.camera.top = 20;
+      light.shadow.camera.bottom = -20;
+      light.shadow.mapSize.width = 4096;
+      light.shadow.mapSize.height = 4096;
+
+      return light;
+   }
+
+
+   function getSphere() {
+      var geometry = new THREE.SphereGeometry(0.25, 20, 20);
+      var material = new THREE.MeshNormalMaterial();
+      var mesh = new THREE.Mesh(geometry, material);
+      mesh.position.z = 0.5;
+      mesh.position.y = -9;
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      mesh.name = "sphere";
+
+      return mesh;
+   }
+
+   function getFloor() {
+      var geometry = new THREE.PlaneGeometry(18, 20);
+      var mesh = new THREE.Mesh(geometry, getWoodMaterial());
+      mesh.receiveShadow = true;
+
+      return mesh;
+   }
+
+   function getBorder(name, x, y, z, posX, posY, posZ, material) {
+      var geometry = new THREE.BoxGeometry(x, y, z);
+      var mesh = new THREE.Mesh(geometry, material);
+      mesh.receiveShadow = true;
+      mesh.position.set(posX, posY, posZ);
+      mesh.name = name;
+
+      return mesh;
+   }
+
+   function getBlock(x, y, z, posX, posY, posZ, material) {
+      var geometry = new THREE.BoxGeometry(x, y, z);
+      var mesh = new THREE.Mesh(geometry, material);
+      mesh.receiveShadow = true;
+      mesh.position.set(posX, posY, posZ);
+
+      return mesh;
+   }
+
+   function getWoodMaterial() {
+      var texture = new THREE.TextureLoader().load("wood.png");
+      var material = new THREE.MeshPhysicalMaterial({
+         map : texture
+      });
+      material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
+      material.map.repeat.set(4, 4);
+      material.side = THREE.DoubleSide;
+
+      return material;
+   }
+
+   function getStoneMaterial() {
+      var texture = new THREE.TextureLoader().load("blue-square.png");
+      var material = new THREE.MeshPhysicalMaterial({
+         map : texture
+      });
+      material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
+      material.side = THREE.DoubleSide;
+
+      return material;
+   }
+
+   function getCoalMaterial() {
+      var texture = new THREE.TextureLoader().load("blue-square.png");
+      var material = new THREE.MeshPhysicalMaterial({
+         map : texture
+      });
+      material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
+      material.side = THREE.DoubleSide;
+
+      return material;
+   }
+
+   function getGoldMaterial() {
+      var texture = new THREE.TextureLoader().load("blue-square.png");
+      var material = new THREE.MeshPhysicalMaterial({
+         map : texture
+      });
+      material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
+      material.side = THREE.DoubleSide;
+
+      return material;
+   }
+
+   function getDiamondMaterial() {
+      var texture = new THREE.TextureLoader().load("blue-square.png");
+      var material = new THREE.MeshPhysicalMaterial({
+         map : texture
+      });
+      material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
+      material.side = THREE.DoubleSide;
+
+      return material;
+   }
+
+   function checkpuntuacion(objeto){
+      if(objeto.position.y == 2.25 || objeto.position.y == 3.5){
+         puntuacion_turno += 1
+      } else if(objeto.position.y == 4.75 || objeto.position.y == 6){
+         puntuacion_turno += 2
+      } else if(objeto.position.y == 7.25 || objeto.position.y == 8.5){
+         puntuacion_turno += 3
+      }
+   }
+
+   function checkMx(objeto1, objeto2){
+      var diferencia = Math.abs(objeto1.position.x - objeto2.position.x);
+                  
+      if( diferencia<= 0.25){
+         multiplicadorX = 1;
+      }else if(diferencia <= 1){
+         multiplicadorX = 1.5;
+      }else if(diferencia > 1){
+         multiplicadorX = 2;
+      }
+      if(diferencia >= 0.25 && objeto1.position.x > objeto2.position.x && stepX == -0.1){
+         stepX *= -1;
+      }else if(diferencia >= 0.25 && objeto1.position.x < objeto2.position.x && stepX == 0.1){
+         stepX *= -1;
+      }
+   }
+
+   function checkMy(objeto){
+      posiciones.push(objeto.position.x)
+
+      if(posiciones.length == 2){
+         distancia = Math.abs(posiciones[0] - posiciones[1]);
+         if (distancia <= 2.25){
+            multiplicadorY = 1;
+         } else if(distancia <= 4.5){
+            multiplicadorY = 1.2;
+         } else if(distancia <= 6.75){
+            multiplicadorY = 1.4;
+         } else if(distancia <= 9){
+            multiplicadorY = 1.6
+         } else if(distancia <= 11.25){
+            multiplicadorY = 1.8
+         } else if(distancia > 11.25){
+            multiplicadorY = 2;
+         }
+         posiciones.splice(0,1);
+      }
+   }
+
+   function checkCollision(scene, sphere, borders, blocks) {
+      var originPosition = sphere.position.clone();
+
+      const positionAttribute = sphere.geometry.getAttribute( 'position' );
+      const localVertex = new THREE.Vector3();
+      const globalVertex = new THREE.Vector3();
+      for ( let vertexIndex = 0; vertexIndex < positionAttribute.count; vertexIndex ++ ) {
+         localVertex.fromBufferAttribute( positionAttribute, vertexIndex );
+         globalVertex.copy( localVertex ).applyMatrix4( sphere.matrixWorld );
+         var directionVector = globalVertex.sub(sphere.position);
+         var ray = new THREE.Raycaster(originPosition, directionVector.clone().normalize());
+         var collisionResults = ray.intersectObjects(borders);
+         if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
+            // Collision detected
+            if (collisionResults[0].object.name == "left" || collisionResults[0].object.name == "right") {
+               stepX *= -1;
+            }
+            if (collisionResults[0].object.name == "player" || collisionResults[0].object.name == "top") {               
+               if(collisionResults[0].object.name == "player"){
+
+                  checkMx(collisionResults[0].object, sphere);
+
+                  checkMy(collisionResults[0].object);
+
+                  if (n_bloques >= 3){
+                     puntuacion_g += puntuacion_turno*2;
+                  }else{
+                     puntuacion_g += puntuacion_turno;
+                  }
+                  n_bloques = 0;
+                  puntuacion_turno = 0;
+               }
+               stepY *= -1;
+               
+               
+            }            
+            break;
+         }
+
+         var collisionResults = ray.intersectObjects(blocks);
+         if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
+            // Collision detected
+
+            checkpuntuacion(collisionResults[0].object);
+            n_bloques +=1;
+
+            if(Math.abs(collisionResults[0].object.position.y - sphere.position.y) >= 0.5){
+                
+               stepY *= -1;
+            }else{
+                
+               stepX *= -1;
+            } 
+
+            var index = blocks.indexOf(collisionResults[0].object);
+            
+            scene.remove(blocks[index])
+
+            blocks.splice(index,1)
+                        
+            break;
+         }
+      }
+   }
+</script>
+</head>
+
+<body onload="init()"></body>
+
+</html>

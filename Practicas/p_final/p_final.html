@@ -10,10 +10,19 @@
    var stepX = 0.1;
    var stepY = 0.2;
 
+   var game = {
+      state: "ready",
+      count: 4*5,
+      score: 0,
+      lives: 3
+   }
+
+   var containerSize = 5;
+
    function init() {
       var scene = new THREE.Scene();
-      var sceneWidth = window.innerWidth;
-      var sceneHeight = window.innerHeight;
+      var sceneWidth = window.innerWidth-20;
+      var sceneHeight = window.innerHeight-20;
 
       var camera = new THREE.PerspectiveCamera(90, sceneWidth / sceneHeight, 0.01, 100);
       camera.position.set(0, 0, 15); // Set the initial Camera Position.
@@ -27,36 +36,36 @@
       document.body.appendChild(renderer.domElement);
 
       var light = getLight();
-      var leftBorder = getBorder("left", 1, 20, 2, -10, 0, 0);
-      var rightBorder = getBorder("right", 1, 20, 2, 10, 0, 0);
-      var topBorder = getBorder("top", 21, 1, 2, 0, 10, 0);
-      var downBorder = getBorder("down", 21, 1, 2, 0, -9.5, 0);
+      var leftBorder = getBorder("left", 1, 21, 2.5, -10, 0, 0);
+      var rightBorder = getBorder("right", 1, 21, 2.5, 10, 0, 0);
+      var topBorder = getBorder("top", 21, 1, 2.5, 0, 10, 0);
+      var downBorder = getBorder("down", 21, 1, 2.5, 0, -10, 0);
       var sphere = getSphere();
       var floor = getFloor();
 
-      var row00 = getBricks(-8, 8.5, 0);
-      var row01 = getBricks(-4, 8.5, 0);
-      var row02 = getBricks(0, 8.5, 0);
-      var row03 = getBricks(4, 8.5, 0);
-      var row04 = getBricks(8, 8.5, 0);
+      var row00 = getBricks(-8, 9, 0);
+      var row01 = getBricks(-4, 9, 0);
+      var row02 = getBricks(0, 9, 0);
+      var row03 = getBricks(4, 9, 0);
+      var row04 = getBricks(8, 9, 0);
       
-      var row10 = getBricks(-8, 7, 0);
-      var row11 = getBricks(-4, 7, 0);
-      var row12 = getBricks(0, 7, 0);
-      var row13 = getBricks(4, 7, 0);
-      var row14 = getBricks(8, 7, 0);
+      var row10 = getBricks(-8, 8, 0);
+      var row11 = getBricks(-4, 8, 0);
+      var row12 = getBricks(0, 8, 0);
+      var row13 = getBricks(4, 8, 0);
+      var row14 = getBricks(8, 8, 0);
       
-      var row20 = getBricks(-8, 5.5, 0);
-      var row21 = getBricks(-4, 5.5, 0);
-      var row22 = getBricks(0, 5.5, 0);
-      var row23 = getBricks(4, 5.5, 0);
-      var row24 = getBricks(8, 5.5, 0);
+      var row20 = getBricks(-8, 7, 0);
+      var row21 = getBricks(-4, 7, 0);
+      var row22 = getBricks(0, 7, 0);
+      var row23 = getBricks(4, 7, 0);
+      var row24 = getBricks(8, 7, 0);
 
-      var row30 = getBricks(-8, 4, 0);
-      var row31 = getBricks(-4, 4, 0);
-      var row32 = getBricks(0, 4, 0);
-      var row33 = getBricks(4, 4, 0);
-      var row34 = getBricks(8, 4, 0);
+      var row30 = getBricks(-8, 6, 0);
+      var row31 = getBricks(-4, 6, 0);
+      var row32 = getBricks(0, 6, 0);
+      var row33 = getBricks(4, 6, 0);
+      var row34 = getBricks(8, 6, 0);
 
       let row0 = [row00, row01, row02, row03, row04];
       let row1 = [row10, row11, row12, row13, row14];
@@ -83,19 +92,52 @@
       
       let borders = [ leftBorder, rightBorder, topBorder, downBorder ];
 
-      animate(sphere, borders, renderer, scene, camera);
+      document.onkeydown = function (ev) {
+         var step = 1;
+         switch (ev.keyCode) {
+            case 37: // Left
+               if (downBorder.position.x <= -containerSize) {
+                  downBorder.position.x = -containerSize;
+               } else {
+                  downBorder.position.x += -step;
+               }
+               break;
+            case 39: // Right  
+               if (downBorder.position.x >= containerSize) {
+                  downBorder.position.x = containerSize;
+               } else {
+                  downBorder.position.x += step;
+               }
+               break;
+            case 32: // Space
+               game.state = "play";
+               break;
+         }
+         console.log(paddle.position.x)
+      }
+
+      animate(sphere, borders, bricks, renderer, scene, camera);
    }
 
-   function animate(sphere, borders, renderer, scene, camera) {
-      checkCollision(sphere, borders);
-      
-      sphere.position.x += stepX;
-      sphere.position.y += stepY;
+   function animate(sphere, borders, bricks, renderer, scene, camera) {
+      checkCollision(sphere, borders, bricks, scene);
+
+      if (game.state == "play") {
+         sphere.position.x += stepX;
+         sphere.position.y += stepY; 
+      }
+
+      if (sphere.position.y < -10) {
+         sphere.position.x = 0;
+         sphere.position.y = -9;
+         game.lives -= 1;
+         console.log(game.lives)
+      }
 
       renderer.render(scene, camera);
 
       renderer.setAnimationLoop( function() {
-         animate(sphere, borders, renderer, scene, camera);
+         animate(sphere, borders, bricks, renderer, scene, camera);
       });
    }
 
@@ -115,10 +157,10 @@
    }
 
    function getSphere() {
-      var geometry = new THREE.SphereGeometry(1, 20, 20);
+      var geometry = new THREE.SphereGeometry(0.5, 20, 20);
       var material = new THREE.MeshNormalMaterial();
       var mesh = new THREE.Mesh(geometry, material);
-      mesh.position.z = 1;
+      mesh.position.set(0, -9, 1);
       mesh.castShadow = true;
       mesh.name = "sphere";
 
@@ -144,7 +186,7 @@
    }
 
    function getBricks(posX, posY, posZ) {
-    var geometry = new THREE.BoxGeometry(3.5, 1, 1);
+    var geometry = new THREE.BoxGeometry(4, 1, 2);
     var mesh = new THREE.Mesh(geometry, getBrickMaterial());
     mesh.receiveShadow = true;
     mesh.position.set(posX, posY, posZ);
@@ -153,12 +195,10 @@
    }
 
    function getWoodMaterial() {
-      var texture = new THREE.TextureLoader().load("wood.png");
+      var texture = new THREE.TextureLoader().load("metal.webp");
       var material = new THREE.MeshPhysicalMaterial({
          map : texture
       });
-      material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
-      material.map.repeat.set(4, 4);
       material.side = THREE.DoubleSide;
 
       return material;
@@ -174,7 +214,7 @@
       return material; 
    }
 
-   function checkCollision(sphere, borders) {
+   function checkCollision(sphere, borders, bricks, scene) {
       var originPosition = sphere.position.clone();
 
       const positionAttribute = sphere.geometry.getAttribute( 'position' );
@@ -186,7 +226,7 @@
          var directionVector = globalVertex.sub(sphere.position);
          var ray = new THREE.Raycaster(originPosition, directionVector.clone().normalize());
          var borderCollision = ray.intersectObjects(borders);
-         // var brickCollision = ray.intersectObjects(bricks);
+         var brickCollision = ray.intersectObjects(bricks);
          if (borderCollision.length > 0 && borderCollision[0].distance < directionVector.length()) {
             // Wall collision detected
             if (borderCollision[0].object.name == "left" || borderCollision[0].object.name == "right") {
@@ -195,7 +235,21 @@
             if (borderCollision[0].object.name == "down" || borderCollision[0].object.name == "top") {
                stepY *= -1;
             }
-            // Brick collision detected
+            break;
+         }
+
+         // Brick collision detected
+         if (brickCollision.length > 0 && brickCollision[0].distance < directionVector.length()) {
+            stepX *= -1;
+            stepY *= -1;
+
+            var index = bricks.indexOf(brickCollision[0].object);
+            scene.remove(bricks[index]);
+            bricks.splice(index, 1);
+
+            game.score++;
+            game.count--;
+            // console.log(game.score, game.count)
             break;
          }
       }

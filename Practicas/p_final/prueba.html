@@ -49,7 +49,7 @@
       var topBorder = getBorder("top", 21, 1, 2.5, 0, 10, 0);
       var sphere = getSphere();
       var floor = getFloor();
-      paddle.mesh = getPaddle(paddle.x);
+      paddle.mesh = getBorder("paddle", 21, 1, 2.5, 0, -10, 0);
 
       var row00 = getBricks(-8, 9, 0);
       var row01 = getBricks(-4, 9, 0);
@@ -100,26 +100,27 @@
       
       let borders = [ leftBorder, rightBorder, topBorder ];
 
-      animate(sphere, borders, bricks, paddle, renderer, scene, camera);
-   }
-
-   function animate(sphere, borders, bricks, paddle, renderer, scene, camera) {
-      checkCollision(sphere, borders, bricks, scene);
-      
-      // sphere.position.x += stepX;
-      // sphere.position.y += stepY;
-
       document.onkeydown = function (ev) {
          var step = 1;
          switch (ev.keyCode) {
             case 37: // Left
-               paddle.x += -step;
+               paddle.position.x += -step;
                break;
             case 39: // Right  
-               paddle.x += step;
+               paddle.position.x += step;
                break;
          }
+         console.log(paddle.position.x)
       }
+
+      animate(sphere, borders, bricks, paddle, renderer, scene, camera);
+   }
+
+   function animate(sphere, borders, bricks, paddle, renderer, scene, camera) {
+      checkCollision(sphere, borders, bricks, paddle, scene);
+      
+      sphere.position.x += stepX;
+      sphere.position.y += stepY;
 
       renderer.render(scene, camera);
 
@@ -148,7 +149,7 @@
       var material = new THREE.MeshBasicMaterial({color: 0xffffff});
       var mesh = new THREE.Mesh(geometry, material);
       // mesh = new THREE.PointLight(0xffffff, 1, 200);
-      mesh.position.set(0, -8, 1);
+      mesh.position.set(0, -5, 1);
       mesh.castShadow = true;
       mesh.name = "sphere";
 
@@ -182,12 +183,13 @@
     return mesh;
    }
 
-   function getPaddle(posX) {
+   function getPaddle(name, posX) {
       var geometry = new THREE.BoxGeometry(4, 1, 2);
       var material = new THREE.MeshBasicMaterial({color: 0xff0000});
       var mesh = new THREE.Mesh(geometry, material);
       mesh.receiveShadow = true;
       mesh.position.set(posX, -9.5, 0);
+      mesh.name = name;
       
       return mesh;
    }
@@ -214,7 +216,7 @@
       return material; 
    }
 
-   function checkCollision(sphere, borders, bricks, scene) {
+   function checkCollision(sphere, borders, bricks, paddle, scene) {
       var originPosition = sphere.position.clone();
 
       const positionAttribute = sphere.geometry.getAttribute( 'position' );
@@ -226,13 +228,17 @@
          var directionVector = globalVertex.sub(sphere.position);
          var ray = new THREE.Raycaster(originPosition, directionVector.clone().normalize());
          var borderCollision = ray.intersectObjects(borders);
+         var paddleColllision = ray.intersectObjects(paddle);
          var brickCollision = ray.intersectObjects(bricks);
          if (borderCollision.length > 0 && borderCollision[0].distance < directionVector.length()) {
             // Border collision detected
             if (borderCollision[0].object.name == "left" || borderCollision[0].object.name == "right") {
                stepX *= -1;
             }
-            if (borderCollision[0].object.name == "top") {
+            if (borderCollision[0].object.name == "top" || paddleColllision[0].object) {
+               // if (paddleColllision[0].object.name == "paddle") {
+               //    pass
+               // }
                stepY *= -1;
             }
             break;
@@ -242,7 +248,10 @@
             stepX *= -1;
             stepY *= -1;
 
-            scene.remove(brickCollision[0].object);
+            var index = bricks.indexOf(brickCollision[0].object);
+
+            scene.remove(bricks[index]);
+            bricks.splice(index, 1);
             game.score++;
             game.count--;
             // console.log(game.score, game.count)

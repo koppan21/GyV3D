@@ -1,3 +1,14 @@
+<!--
+   Autor: Sandra Nicole Solórzano Carcelén
+
+   Partes implementadas:
+   - Funcionalidad básica
+   - Funcionalidad avanzada:
+      - Ángulo de rebote variable
+      - Puntuación por filas variable
+   - Mejoras: 
+      - Sonidos para cada objeto (usuario, pared, bloque) y acción (caída, perder, ganar)
+-->
 <!DOCTYPE html>
 <html>
 
@@ -262,37 +273,33 @@
       }
    }
 
-   function addBricks() {      
-      var row00 = getBricks(-8, 9, 0, "blue-square.png");
-      var row01 = getBricks(-4, 9, 0, "blue-square.png");
-      var row02 = getBricks(0, 9, 0, "blue-square.png");
-      var row03 = getBricks(4, 9, 0, "blue-square.png");
-      var row04 = getBricks(8, 9, 0, "blue-square.png");
-      
-      var row10 = getBricks(-8, 8, 0, "green-square.png");
-      var row11 = getBricks(-4, 8, 0, "green-square.png");
-      var row12 = getBricks(0, 8, 0, "green-square.png");
-      var row13 = getBricks(4, 8, 0, "green-square.png");
-      var row14 = getBricks(8, 8, 0, "green-square.png");
-      
-      var row20 = getBricks(-8, 7, 0, "purple-square.png");
-      var row21 = getBricks(-4, 7, 0, "purple-square.png");
-      var row22 = getBricks(0, 7, 0, "purple-square.png");
-      var row23 = getBricks(4, 7, 0, "purple-square.png");
-      var row24 = getBricks(8, 7, 0, "purple-square.png");
-
-      var row30 = getBricks(-8, 6, 0, "orange-square.png");
-      var row31 = getBricks(-4, 6, 0, "orange-square.png");
-      var row32 = getBricks(0, 6, 0, "orange-square.png");
-      var row33 = getBricks(4, 6, 0, "orange-square.png");
-      var row34 = getBricks(8, 6, 0, "orange-square.png");
-
-      let row0 = [row00, row01, row02, row03, row04];
-      let row1 = [row10, row11, row12, row13, row14];
-      let row2 = [row20, row21, row22, row23, row24];
-      let row3 = [row30, row31, row32, row33, row34];
-
-      let rows = row0.concat(row1, row2, row3);
+   function addBricks() {
+      var rows = [
+         // row 1
+         getBricks(-8, 9, 0, "blue-square.png"),
+         getBricks(-4, 9, 0, "blue-square.png"),
+         getBricks(0, 9, 0, "blue-square.png"),
+         getBricks(4, 9, 0, "blue-square.png"),
+         getBricks(8, 9, 0, "blue-square.png"),
+         // row 2
+         getBricks(-8, 8, 0, "green-square.png"),
+         getBricks(-4, 8, 0, "green-square.png"),
+         getBricks(0, 8, 0, "green-square.png"),
+         getBricks(4, 8, 0, "green-square.png"),
+         getBricks(8, 8, 0, "green-square.png"),
+         // row 3
+         getBricks(-8, 7, 0, "purple-square.png"),
+         getBricks(-4, 7, 0, "purple-square.png"),
+         getBricks(0, 7, 0, "purple-square.png"),
+         getBricks(4, 7, 0, "purple-square.png"),
+         getBricks(8, 7, 0, "purple-square.png"),
+         // row 4
+         getBricks(-8, 6, 0, "orange-square.png"),
+         getBricks(-4, 6, 0, "orange-square.png"),
+         getBricks(0, 6, 0, "orange-square.png"),
+         getBricks(4, 6, 0, "orange-square.png"),
+         getBricks(8, 6, 0, "orange-square.png"),
+      ];
 
       return rows;
    }

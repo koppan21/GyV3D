@@ -10,10 +10,12 @@
    var stepX = 0.1;
    var stepY = 0.2;
    const r = 0.5;
+   const rowls = 4;
+   const cols = 5;
 
    var game = {
       state: "ready",
-      count: 4*5,
+      count: rowls*cols,
       score: 0,
       lives: 3
    }
@@ -81,10 +83,7 @@
                break;
             case 32: // Space
                if (game.state == "over") {
-                  var elem = document.getElementById("message");
-                  elem.parentNode.removeChild(elem);
-                  resetGame();
-                  game.state = "ready";
+                  location.reload();
                } else {
                   game.state = "playing";
                }
@@ -122,7 +121,7 @@
       light.position.set(4, 4, 4);
       light.castShadow = true;
       light.shadow.camera.near = 0;
-      light.shadow.camera.far = 25;
+      light.shadow.camera.far = 20;
       light.shadow.camera.left = -20;
       light.shadow.camera.right = 20;
       light.shadow.camera.top = 20;
@@ -161,9 +160,9 @@
       return mesh;
    }
 
-   function getBricks(posX, posY, posZ) {
+   function getBricks(posX, posY, posZ, texture) {
     var geometry = new THREE.BoxGeometry(4, 1, 2);
-    var mesh = new THREE.Mesh(geometry, getMaterial("blue-square.png"));
+    var mesh = new THREE.Mesh(geometry, getMaterial(texture));
     mesh.receiveShadow = true;
     mesh.position.set(posX, posY, posZ);
 
@@ -251,29 +250,29 @@
    }
 
    function addBricks() {
-      var row00 = getBricks(-8, 9, 0);
-      var row01 = getBricks(-4, 9, 0);
-      var row02 = getBricks(0, 9, 0);
-      var row03 = getBricks(4, 9, 0);
-      var row04 = getBricks(8, 9, 0);
+      var row00 = getBricks(-8, 9, 0, "blue-square.png");
+      var row01 = getBricks(-4, 9, 0, "blue-square.png");
+      var row02 = getBricks(0, 9, 0, "blue-square.png");
+      var row03 = getBricks(4, 9, 0, "blue-square.png");
+      var row04 = getBricks(8, 9, 0, "blue-square.png");
       
-      var row10 = getBricks(-8, 8, 0);
-      var row11 = getBricks(-4, 8, 0);
-      var row12 = getBricks(0, 8, 0);
-      var row13 = getBricks(4, 8, 0);
-      var row14 = getBricks(8, 8, 0);
+      var row10 = getBricks(-8, 8, 0, "green-square.png");
+      var row11 = getBricks(-4, 8, 0, "green-square.png");
+      var row12 = getBricks(0, 8, 0, "green-square.png");
+      var row13 = getBricks(4, 8, 0, "green-square.png");
+      var row14 = getBricks(8, 8, 0, "green-square.png");
       
-      var row20 = getBricks(-8, 7, 0);
-      var row21 = getBricks(-4, 7, 0);
-      var row22 = getBricks(0, 7, 0);
-      var row23 = getBricks(4, 7, 0);
-      var row24 = getBricks(8, 7, 0);
+      var row20 = getBricks(-8, 7, 0, "purple-square.png");
+      var row21 = getBricks(-4, 7, 0, "purple-square.png");
+      var row22 = getBricks(0, 7, 0, "purple-square.png");
+      var row23 = getBricks(4, 7, 0, "purple-square.png");
+      var row24 = getBricks(8, 7, 0, "purple-square.png");
 
-      var row30 = getBricks(-8, 6, 0);
-      var row31 = getBricks(-4, 6, 0);
-      var row32 = getBricks(0, 6, 0);
-      var row33 = getBricks(4, 6, 0);
-      var row34 = getBricks(8, 6, 0);
+      var row30 = getBricks(-8, 6, 0, "orange-square.png");
+      var row31 = getBricks(-4, 6, 0, "orange-square.png");
+      var row32 = getBricks(0, 6, 0, "orange-square.png");
+      var row33 = getBricks(4, 6, 0, "orange-square.png");
+      var row34 = getBricks(8, 6, 0, "orange-square.png");
 
       let row0 = [row00, row01, row02, row03, row04];
       let row1 = [row10, row11, row12, row13, row14];
@@ -322,20 +321,6 @@
       game.state = "over";
       } 
       s.innerHTML = 'Score: ' + game.score + ' Lives: ' + game.lives;
-   }
-
-   function resetGame() {
-      game.lives = 3
-      game.score = 0
-      game.blockCount = 4*5;
-
-      for (let i=0; i<bricks.length; i++) {
-        scene.remove(bricks[i]);
-      }
-
-      bricks = [];
-
-      init();
    }
 </script>
 </head>

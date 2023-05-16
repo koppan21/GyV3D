@@ -14,17 +14,16 @@
       state: "ready",
       count: 4*5,
       score: 0,
-      lives: 3
+      lives: 1
    }
 
-   var status = document.getElementById('status');
+   var sceneWidth = window.innerWidth-20;
+   var sceneHeight = window.innerHeight-20;
 
-   var containerSize = 5;
+   var containerSize = 8;
 
    function init() {
       var scene = new THREE.Scene();
-      var sceneWidth = window.innerWidth-20;
-      var sceneHeight = window.innerHeight-20;
 
       var camera = new THREE.PerspectiveCamera(90, sceneWidth / sceneHeight, 0.01, 100);
       camera.position.set(0, 0, 15); // Set the initial Camera Position.
@@ -41,10 +40,199 @@
       var leftBorder = getBorder("left", 1, 20, 2.5, -10, 0, 0);
       var rightBorder = getBorder("right", 1, 20, 2.5, 10, 0, 0);
       var topBorder = getBorder("top", 21, 1, 2.5, 0, 10, 0);
-      var downBorder = getBorder("down", 4, 1, 2.5, 0, -10, 0);
+      var paddle = getBorder("paddle", 4, 1, 2.5, 0, -10, 0);
       var sphere = getSphere();
       var floor = getFloor();
+      initStatusText();
 
+      let bricks = addBricks();
+
+      for (let i=0; i<bricks.length; i++) {
+        scene.add(bricks[i]);
+      }
+
+      scene.add(light);
+      scene.add(leftBorder);
+      scene.add(rightBorder);
+      scene.add(topBorder);
+      scene.add(paddle);
+      scene.add(sphere);
+      scene.add(floor);
+      
+      let borders = [ leftBorder, rightBorder, topBorder, paddle ];
+
+      document.onkeydown = function (ev) {
+         var step = 1;
+         switch (ev.keyCode) {
+            case 37: // Left
+               if (paddle.position.x <= -containerSize && game.state == "playing") {
+                  paddle.position.x = -containerSize;
+               } else if (game.state == "playing") {
+                  paddle.position.x += -step;
+               }
+               break;
+            case 39: // Right  
+               if (paddle.position.x >= containerSize && game.state == "playing") {
+                  paddle.position.x = containerSize;
+               } else if (game.state == "playing") {
+                  paddle.position.x += step;
+               }
+               break;
+            case 32: // Space
+               if (game.state == "over") {
+                  var elem = document.getElementById("message");
+                  elem.parentNode.removeChild(elem);
+                  resetGame();
+                  game.state = "ready";
+               } else {
+                  game.state = "playing";
+               }
+               break;
+         }
+      }
+
+      animate(sphere, borders, bricks, renderer, scene, camera);
+   }
+
+   function animate(sphere, borders, bricks, renderer, scene, camera) {
+      checkCollision(sphere, borders, bricks, scene);
+
+      if (game.state == "playing") {
+         sphere.position.x += stepX;
+         sphere.position.y += stepY;
+         updateStatus();
+      }
+
+      if (sphere.position.y < -10) {
+         reset(sphere, borders);
+         game.lives -= 1;
+         console.log(game.lives)
+      }
+
+      renderer.render(scene, camera);
+
+      renderer.setAnimationLoop( function() {
+         animate(sphere, borders, bricks, renderer, scene, camera);
+      });
+   }
+
+   function getLight() {
+      var light = new THREE.DirectionalLight();
+      light.position.set(4, 4, 4);
+      light.castShadow = true;
+      light.shadow.camera.near = 0;
+      light.shadow.camera.far = 18;
+      light.shadow.camera.left = -10;
+      light.shadow.camera.right = 10;
+      light.shadow.camera.top = 10;
+      light.shadow.camera.bottom = -10;
+      light.shadow.mapSize.width = 4096;
+      light.shadow.mapSize.height = 4096;
+      return light;
+   }
+
+   function getSphere() {
+      var geometry = new THREE.SphereGeometry(0.5, 20, 20);
+      var material = getMaterial("red.webp");
+      var mesh = new THREE.Mesh(geometry, material);
+      mesh.position.set(0, -9, 1);
+      mesh.castShadow = true;
+      mesh.name = "sphere";
+
+      return mesh;
+   }
+
+   function getFloor() {
+      var geometry = new THREE.PlaneGeometry(20, 20);
+      var mesh = new THREE.Mesh(geometry, getMaterial("metal.webp"));
+      mesh.receiveShadow = true;
+
+      return mesh;
+   }
+
+   function getBorder(name, x, y, z, posX, posY, posZ) {
+      var geometry = new THREE.BoxGeometry(x, y, z);
+      var mesh = new THREE.Mesh(geometry, getMaterial("metal.webp"));
+      mesh.receiveShadow = true;
+      mesh.position.set(posX, posY, posZ);
+      mesh.name = name;
+
+      return mesh;
+   }
+
+   function getBricks(posX, posY, posZ) {
+    var geometry = new THREE.BoxGeometry(4, 1, 2);
+    var mesh = new THREE.Mesh(geometry, getMaterial("blue-square.png"));
+    mesh.receiveShadow = true;
+    mesh.position.set(posX, posY, posZ);
+
+    return mesh;
+   }
+
+   function getMaterial(texture_name) {
+      var texture = new THREE.TextureLoader().load(texture_name);
+      var material = new THREE.MeshPhysicalMaterial({
+         map : texture
+      });
+      material.side = THREE.DoubleSide;
+
+      return material; 
+   }
+
+   function reset(sphere, borders) {
+      sphere.position.x = 0;
+      sphere.position.y = -9;
+      borders[3].position.x = 0;
+      game.state = "ready";
+   }
+
+   function checkCollision(sphere, borders, bricks, scene) {
+      var originPosition = sphere.position.clone();
+
+      const positionAttribute = sphere.geometry.getAttribute( 'position' );
+      const localVertex = new THREE.Vector3();
+      const globalVertex = new THREE.Vector3();
+      for ( let vertexIndex = 0; vertexIndex < positionAttribute.count; vertexIndex ++ ) {
+         localVertex.fromBufferAttribute( positionAttribute, vertexIndex );
+         globalVertex.copy( localVertex ).applyMatrix4( sphere.matrixWorld );
+         var directionVector = globalVertex.sub(sphere.position);
+         var ray = new THREE.Raycaster(originPosition, directionVector.clone().normalize());
+         var borderCollision = ray.intersectObjects(borders);
+         var brickCollision = ray.intersectObjects(bricks);
+         if (borderCollision.length > 0 && borderCollision[0].distance < directionVector.length()) {
+            // Wall collision detected
+            if (borderCollision[0].object.name == "left" || borderCollision[0].object.name == "right") {
+               stepX *= -1;
+            }
+            if (borderCollision[0].object.name == "paddle" || borderCollision[0].object.name == "top") {
+               stepY *= -1;
+            }
+            break;
+         }
+
+         // Brick collision detected
+         if (brickCollision.length > 0 && brickCollision[0].distance < directionVector.length()) {
+            stepX *= -1;
+            stepY *= -1;
+
+            var index = bricks.indexOf(brickCollision[0].object);
+            scene.remove(bricks[index]);
+            bricks.splice(index, 1);
+
+            if (brickCollision[0].object.position.y >= 8) {
+               game.score += 2;
+            } else {
+               game.score++;
+            }
+
+            game.count--;
+            console.log(game.score, game.count)
+            break;
+         }
+      }
+   }
+
+   function addBricks() {
       var row00 = getBricks(-8, 9, 0);
       var row01 = getBricks(-4, 9, 0);
       var row02 = getBricks(0, 9, 0);
@@ -74,200 +262,65 @@
       let row2 = [row20, row21, row22, row23, row24];
       let row3 = [row30, row31, row32, row33, row34];
 
-      let bricks = row0.concat(row1, row2, row3);
-      console.log(bricks)
+      let rows = row0.concat(row1, row2, row3);
 
-      for (let i=0; i<6; i++) {
-        scene.add(row0[i]);
-        scene.add(row1[i]);
-        scene.add(row2[i]);
-        scene.add(row3[i]);
-      }
-
-      scene.add(light);
-      scene.add(leftBorder);
-      scene.add(rightBorder);
-      scene.add(topBorder);
-      scene.add(downBorder);
-      scene.add(sphere);
-      scene.add(floor);
-      
-      let borders = [ leftBorder, rightBorder, topBorder, downBorder ];
-
-      document.onkeydown = function (ev) {
-         var step = 1;
-         switch (ev.keyCode) {
-            case 37: // Left
-               if (downBorder.position.x <= -containerSize) {
-                  downBorder.position.x = -containerSize;
-               } else {
-                  downBorder.position.x += -step;
-               }
-               break;
-            case 39: // Right  
-               if (downBorder.position.x >= containerSize) {
-                  downBorder.position.x = containerSize;
-               } else {
-                  downBorder.position.x += step;
-               }
-               break;
-            case 32: // Space
-               game.state = "playing";
-               break;
-         }
-      }
-
-      animate(sphere, borders, bricks, renderer, scene, camera);
+      return rows;
    }
 
-   function animate(sphere, borders, bricks, renderer, scene, camera) {
-      checkCollision(sphere, borders, bricks, scene);
-
-      if (game.state == "playing") {
-         sphere.position.x += stepX;
-         sphere.position.y += stepY; 
-      }
-
-      if (sphere.position.y < -10) {
-         sphere.position.x = 0;
-         sphere.position.y = -9;
-         borders[3].position.x = 0;
-         game.lives -= 1;
-         game.state = "ready";
-         console.log(game.lives)
-      }
-
-      renderer.render(scene, camera);
-
-      renderer.setAnimationLoop( function() {
-         animate(sphere, borders, bricks, renderer, scene, camera);
-      });
-   }
-
-   function getLight() {
-      var light = new THREE.DirectionalLight();
-      light.position.set(4, 4, 4);
-      light.castShadow = true;
-      light.shadow.camera.near = 0;
-      light.shadow.camera.far = 18;
-      light.shadow.camera.left = -8;
-      light.shadow.camera.right = 8;
-      light.shadow.camera.top = 10;
-      light.shadow.camera.bottom = -10;
-      light.shadow.mapSize.width = 4096;
-      light.shadow.mapSize.height = 4096;
-      return light;
-   }
-
-   function getSphere() {
-      var geometry = new THREE.SphereGeometry(0.5, 20, 20);
-      var material = new THREE.MeshNormalMaterial();
-      var mesh = new THREE.Mesh(geometry, material);
-      mesh.position.set(0, -9, 1);
-      mesh.castShadow = true;
-      mesh.name = "sphere";
-
-      return mesh;
-   }
-
-   function getFloor() {
-      var geometry = new THREE.PlaneGeometry(20, 20);
-      var mesh = new THREE.Mesh(geometry, getWoodMaterial());
-      mesh.receiveShadow = true;
-
-      return mesh;
-   }
-
-   function getBorder(name, x, y, z, posX, posY, posZ) {
-      var geometry = new THREE.BoxGeometry(x, y, z);
-      var mesh = new THREE.Mesh(geometry, getWoodMaterial());
-      mesh.receiveShadow = true;
-      mesh.position.set(posX, posY, posZ);
-      mesh.name = name;
-
-      return mesh;
-   }
-
-   function getBricks(posX, posY, posZ) {
-    var geometry = new THREE.BoxGeometry(4, 1, 2);
-    var mesh = new THREE.Mesh(geometry, getBrickMaterial());
-    mesh.receiveShadow = true;
-    mesh.position.set(posX, posY, posZ);
-
-    return mesh;
-   }
-
-   function getWoodMaterial() {
-      var texture = new THREE.TextureLoader().load("metal.webp");
-      var material = new THREE.MeshPhysicalMaterial({
-         map : texture
-      });
-      material.side = THREE.DoubleSide;
-
-      return material;
+   function initStatusText() {
+      var status = document.createElement("div");
+      status.id = "status";
+      status.style.position = "absolute";
+      status.style.top = "0px";
+      status.style.padding = "10px";
+      status.style.width = "200px";
+      status.style.height = "100px";
+      status.style.fontFamily = "monospace";
+      status.innerHTML = "Score: " + game.score + " Lives: " + game.lives;
+      status.style.color = "white";
+      document.body.appendChild(status);
    }
    
-   function getBrickMaterial() {
-      var texture = new THREE.TextureLoader().load("blue-square.png");
-      var material = new THREE.MeshPhysicalMaterial({
-         map : texture
-      });
-      material.side = THREE.DoubleSide;
-
-      return material; 
+   function drawText(msg) {
+      var text = document.createElement("div");
+      text.id = "message";
+      text.style.position = "absolute";
+      text.style.top = sceneHeight/2 + "px";
+      text.style.left = sceneWidth/3 + "px";
+      text.innerHTML = msg;
+      text.style.fontSize = "100px";
+      text.style.color = "white";
+      text.style.fontFamily = "monospace";
+      document.body.appendChild(text);
    }
 
-   function checkCollision(sphere, borders, bricks, scene) {
-      var originPosition = sphere.position.clone();
+   function updateStatus() {
+      var s = document.getElementById("status");
+      if (game.lives == 0) {
+      drawText("GAME OVER");
+      game.state = "over";
+      } else if (game.blockCount == 0) {
+      drawText("YOU WIN");
+      game.state = "over";
+      } 
+      s.innerHTML = 'Score: ' + game.score + ' Lives: ' + game.lives;
+   }
 
-      const positionAttribute = sphere.geometry.getAttribute( 'position' );
-      const localVertex = new THREE.Vector3();
-      const globalVertex = new THREE.Vector3();
-      for ( let vertexIndex = 0; vertexIndex < positionAttribute.count; vertexIndex ++ ) {
-         localVertex.fromBufferAttribute( positionAttribute, vertexIndex );
-         globalVertex.copy( localVertex ).applyMatrix4( sphere.matrixWorld );
-         var directionVector = globalVertex.sub(sphere.position);
-         var ray = new THREE.Raycaster(originPosition, directionVector.clone().normalize());
-         var borderCollision = ray.intersectObjects(borders);
-         var brickCollision = ray.intersectObjects(bricks);
-         if (borderCollision.length > 0 && borderCollision[0].distance < directionVector.length()) {
-            // Wall collision detected
-            if (borderCollision[0].object.name == "left" || borderCollision[0].object.name == "right") {
-               stepX *= -1;
-            }
-            if (borderCollision[0].object.name == "down" || borderCollision[0].object.name == "top") {
-               stepY *= -1;
-            }
-            break;
-         }
+   function resetGame() {
+      game.lives = 3
+      game.score = 0
+      game.blockCount = 4*5;
+      reset();
 
-         // Brick collision detected
-         if (brickCollision.length > 0 && brickCollision[0].distance < directionVector.length()) {
-            stepX *= -1;
-            stepY *= -1;
-
-            var index = bricks.indexOf(brickCollision[0].object);
-            scene.remove(bricks[index]);
-            bricks.splice(index, 1);
-
-            if (brickCollision[0].object.position.y >= 8) {
-               game.score += 2;
-            } else {
-               game.score++;
-            }
-
-            game.count--;
-            status.innerHTML = "Score: " + game.score + " Lives: " + game.lives;
-            console.log(game.score, game.count)
-            break;
-         }
+      for (let i=0; i<bricks.length; i++) {
+        scene.remove(bricks[i]);
       }
+
+      init();
    }
 </script>
 </head>
 
-<body onload="init()">
-   <div id="status" style="position: absolute; top: 0px; padding: 10px; width: 200px; height: 100px; font-family: monospace; color: white;">Score: 0 Lives: 3</div>
-</body>
+<body onload="init()"></body>
 
 </html>

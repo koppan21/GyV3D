@@ -5,6 +5,7 @@
 <title>Práctica final: Breakout</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.148.0/three.min.js"></script>
+<link rel="stylesheet" href="style.css">
 
 <script>
    var stepX = 0.1;
@@ -25,6 +26,13 @@
 
    var containerSize = 8;
 
+   const sound_brick = new Audio("brick.m4a");
+   const sound_wall = new Audio("wall.m4a");
+   const sound_paddle = new Audio("paddle.m4a");
+   const sound_fall = new Audio("bajo.mp3");
+   const sound_win = new Audio("win.mp3");
+   const sound_over = new Audio("game-over.mp3");
+
    function init() {
       var scene = new THREE.Scene();
 
@@ -43,7 +51,7 @@
       var leftBorder = getBorder("left", 1, 20, 2.5, -10, 0, 0);
       var rightBorder = getBorder("right", 1, 20, 2.5, 10, 0, 0);
       var topBorder = getBorder("top", 21, 1, 2.5, 0, 10, 0);
-      var paddle = getBorder("paddle", 4, 1, 2.5, 0, -10, 0);
+      var paddle = getBorder("paddle", 4, 1, 2.5, 0, -11, 0);
       var sphere = getSphere();
       var floor = getFloor();
       initStatusText();
@@ -100,14 +108,16 @@
       if (game.state == "playing") {
          sphere.position.x += stepX;
          sphere.position.y += stepY;
-         updateStatus();
       }
 
-      if (sphere.position.y < -10) {
+      if (sphere.position.y < -11) {
+         sound(sound_fall);
          reset(sphere, borders);
          game.lives -= 1;
          console.log(game.lives)
       }
+
+      updateStatus();
 
       renderer.render(scene, camera);
 
@@ -135,7 +145,7 @@
       var geometry = new THREE.SphereGeometry(r, 20, 20);
       var material = getMaterial("red.webp");
       var mesh = new THREE.Mesh(geometry, material);
-      mesh.position.set(0, -9, 1);
+      mesh.position.set(0, -10, 0.5);
       mesh.castShadow = true;
       mesh.name = "sphere";
 
@@ -160,9 +170,9 @@
       return mesh;
    }
 
-   function getBricks(posX, posY, posZ, texture) {
+   function getBricks(posX, posY, posZ, texture_name) {
     var geometry = new THREE.BoxGeometry(4, 1, 2);
-    var mesh = new THREE.Mesh(geometry, getMaterial(texture));
+    var mesh = new THREE.Mesh(geometry, getMaterial(texture_name));
     mesh.receiveShadow = true;
     mesh.position.set(posX, posY, posZ);
 
@@ -181,7 +191,7 @@
 
    function reset(sphere, borders) {
       sphere.position.x = 0;
-      sphere.position.y = -9;
+      sphere.position.y = -10;
       borders[3].position.x = 0;
       game.state = "ready";
    }
@@ -215,12 +225,15 @@
          if (borderCollision.length > 0 && borderCollision[0].distance < directionVector.length()) {
             // Wall collision detected
             if (borderCollision[0].object.name == "left" || borderCollision[0].object.name == "right") {
+               sound(sound_wall);
                stepX *= -1;
             }
             if (borderCollision[0].object.name == "top") {
+               sound(sound_wall);
                stepY *= -1;
             }
             if (borderCollision[0].object.name == "paddle") {
+               sound(sound_paddle);
                angleX(borderCollision[0].object, sphere);
                stepY *= -1;
             }
@@ -229,7 +242,7 @@
 
          // Brick collision detected
          if (brickCollision.length > 0 && brickCollision[0].distance < directionVector.length()) {
-            stepX *= -1;
+            sound(sound_brick);
             stepY *= -1;
 
             var index = bricks.indexOf(brickCollision[0].object);
@@ -249,7 +262,7 @@
       }
    }
 
-   function addBricks() {
+   function addBricks() {      
       var row00 = getBricks(-8, 9, 0, "blue-square.png");
       var row01 = getBricks(-4, 9, 0, "blue-square.png");
       var row02 = getBricks(0, 9, 0, "blue-square.png");
@@ -285,46 +298,43 @@
    }
 
    function initStatusText() {
-      var status = document.createElement("div");
-      status.id = "status";
-      status.style.position = "absolute";
-      status.style.top = "0px";
-      status.style.padding = "10px";
-      status.style.width = "200px";
-      status.style.height = "100px";
-      status.style.fontFamily = "monospace";
+      var status = document.getElementById("status");
       status.innerHTML = "Score: " + game.score + " Lives: " + game.lives;
-      status.style.color = "white";
       document.body.appendChild(status);
    }
    
    function drawText(msg) {
       var text = document.createElement("div");
       text.id = "message";
-      text.style.position = "absolute";
-      text.style.top = sceneHeight/2 + "px";
-      text.style.left = sceneWidth/3 + "px";
       text.innerHTML = msg;
-      text.style.fontSize = "100px";
-      text.style.color = "white";
-      text.style.fontFamily = "monospace";
       document.body.appendChild(text);
    }
 
    function updateStatus() {
       var s = document.getElementById("status");
       if (game.lives == 0) {
-      drawText("GAME OVER");
-      game.state = "over";
-      } else if (game.blockCount == 0) {
-      drawText("YOU WIN");
-      game.state = "over";
+         sound(sound_over);
+         drawText("GAME OVER");
+         game.state = "over";
+         sphere.position.set = (0, 0, 0);
+      } else if (game.count == 0) {
+         sound(sound_win);
+         drawText("YOU WIN!");
+         game.state = "over";
+         sphere.position.set = (0, 0, 0);
       } 
       s.innerHTML = 'Score: ' + game.score + ' Lives: ' + game.lives;
+   }
+
+   function sound(sound_name) {
+      sound_name.currentTime = 0;
+      sound_name.play();
    }
 </script>
 </head>
 
-<body onload="init()"></body>
+<body onload="init()">
+   <div id="status"></div>
+</body>
 
 </html>

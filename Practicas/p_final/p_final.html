@@ -9,12 +9,13 @@
 <script>
    var stepX = 0.1;
    var stepY = 0.2;
+   const r = 0.5;
 
    var game = {
       state: "ready",
       count: 4*5,
       score: 0,
-      lives: 1
+      lives: 3
    }
 
    var sceneWidth = window.innerWidth-20;
@@ -132,7 +133,7 @@
    }
 
    function getSphere() {
-      var geometry = new THREE.SphereGeometry(0.5, 20, 20);
+      var geometry = new THREE.SphereGeometry(r, 20, 20);
       var material = getMaterial("red.webp");
       var mesh = new THREE.Mesh(geometry, material);
       mesh.position.set(0, -9, 1);
@@ -186,6 +187,19 @@
       game.state = "ready";
    }
 
+   function checkAngle(paddle, sphere) {
+      var position = Math.abs(paddle.position.x-sphere.position.x);
+      var direction = paddle.position.x-sphere.position.x;
+      if (position <= 0.5) {
+         stepX = 0.1;
+      } else {
+         stepX = 0.2;
+      }
+      if (direction >0) {
+         stepX *= -1;
+      } 
+   }
+
    function checkCollision(sphere, borders, bricks, scene) {
       var originPosition = sphere.position.clone();
 
@@ -204,7 +218,11 @@
             if (borderCollision[0].object.name == "left" || borderCollision[0].object.name == "right") {
                stepX *= -1;
             }
-            if (borderCollision[0].object.name == "paddle" || borderCollision[0].object.name == "top") {
+            if (borderCollision[0].object.name == "top") {
+               stepY *= -1;
+            }
+            if (borderCollision[0].object.name == "paddle") {
+               checkAngle(borderCollision[0].object, sphere);
                stepY *= -1;
             }
             break;
@@ -310,11 +328,12 @@
       game.lives = 3
       game.score = 0
       game.blockCount = 4*5;
-      reset();
 
       for (let i=0; i<bricks.length; i++) {
         scene.remove(bricks[i]);
       }
+
+      bricks = [];
 
       init();
    }
